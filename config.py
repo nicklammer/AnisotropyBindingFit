@@ -16,6 +16,7 @@ start_row = 1
 
 
 #starting 1X concentration for protein and the dilution factor
+#this script assumes each titration between samples are the same concentration. if not, try using the single plotting for each
 concentration_start = 40000
 dilution_factor = 2
 units = "nM"

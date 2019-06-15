@@ -26,14 +26,16 @@ def run():
 	path_plot = config.path_plot
 	normalization = config.normalization
 
+	#pick between a row layout or columns 
 	if rows == 0:
 		FA = read.excel_open_colsamples(file_raw, titrations, start_row)
-
 	elif rows == 1:
 		FA = read.excel_open_rowsamples(file_raw, titrations, start_col)
 
+	#read data excel file, calculate anisotropy, and output in a formatted excel sheet
 	formatted = read.format(concentration, dilution_factor, dupe, FA)
-	testoutput = read.data_write(formatted, labels, file_formatted)
+	read.data_write(formatted, labels, file_formatted)
+	#fit data to simplified binding isotherm
 	if fiteq == "kdfit":
 		if single == 0:
 			plot.singleplot(formatted,sample,labels,units,plot.kdfit,normalization,
@@ -42,6 +44,7 @@ def run():
 			plot.multiplot(formatted,perplot,labels,units,plot.kdfit,normalization,
 				color_multiple,marker,line_style,plotname,path_plot)
 
+	#quadratic equation fit coming soon
 	#elif fiteq == "quad":
 
 	print ("data is cool")
