@@ -15,6 +15,7 @@ def run():
 	dupe = config.duplicates
 	labels = config.labels
 	fiteq = config.fiteq
+	conc_L = float(config.conc_L)
 	single = config.single
 	sample = config.sample
 	perplot = config.perplot
@@ -44,8 +45,13 @@ def run():
 			plot.multiplot(formatted,perplot,labels,units,plot.kdfit,normalization,
 				color_multiple,marker,line_style,plotname,path_plot)
 
-	#quadratic equation fit coming soon
-	#elif fiteq == "quad":
+	elif fiteq == "quad":
+		if single == 0:
+			plot.quad_singleplot(formatted,sample,labels,units,conc_L,plot.quad,normalization,
+				color_multiple,marker,line_style,plotname,path_plot)
+		elif single == 1:
+			plot.quad_multiplot(formatted,perplot,labels,units,conc_L,plot.quad,normalization,
+				color_multiple,marker,line_style,plotname,path_plot)
 
 	print ("data is cool")
 

@@ -37,6 +37,8 @@ labels = ["A","C","E","G",
 
 #equation for fit. kdfit or quad for now
 fiteq = "kdfit"
+#if using quad, supply constant concentration of ligand
+conc_L = 3
 
 #plot options
 perplot = 4
@@ -45,7 +47,7 @@ color_multiple = ['blue','green','turquoise','red','magenta','orange', 'yellowgr
 #find a table with color names here matplotlib.org/users/colors.html
 marker = 'o'
 line_style = '--'
-plotname = '20190617_MN_FP_'
+plotname = '20190617_MN_FP_quad_'
 
 #do you also want normalized fraction bound plots? (0 for no, 1 for yes)
 normalization = 1
