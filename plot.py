@@ -15,14 +15,13 @@ def quad(P, Kd, S, O, L): #in this form, L refers to the ligand held at constant
 	return S*((a-(((a**2)-(4*P*L))**0.5))/(2*L))+O
 
 #decided to make separate functions for each fitting equation also to make my life easier
-def getkdfit(x, y, fiteq, units):
+def getkdfit(x, y, fiteq, p0, units):
 	fits_x = []
 	fits_y = []
 	y_norm = []
 	param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"]]
 	x = np.array(x) #making them arrays makes the math easier
 	y = np.array(y)
-	p0 = [20.0, 0.1, 0.05]
 	for i in range(len(y)):
 		popt, pcov = opt.curve_fit(fiteq, x, y[i], p0=p0)
 		fits_x.append(np.geomspace(x[len(x)-1], x[0], 50))   
@@ -41,14 +40,13 @@ def getkdfit(x, y, fiteq, units):
 		param_table[3].append(str(round(r_sq,4)))
 	return fits_x, fits_y, y_norm, param_table
 
-def getquadfit(x, y, conc_L, fiteq, units):
+def getquadfit(x, y, conc_L, fiteq, p0, units):
 	fits_x = []
 	fits_y = []
 	y_norm = []
 	param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"]]
 	x = np.array(x)
 	y = np.array(y)
-	p0 = [20.0, 0.1, 0.05]
 	for i in range(len(y)):
 		#use a lambda function to fix L in the quad equation
 		popt, pcov = opt.curve_fit(lambda P, Kd, S, O: fiteq(P, Kd, S, O, conc_L), x, y[i], p0=p0)
@@ -110,7 +108,7 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 	plt.savefig(filepath+plotname+'.svg')
 
 #plot a single sample
-def singleplot(data, sample, labels, units, fiteq, normalization, 
+def singleplot(data, sample, labels, units, fiteq, p0, normalization, 
 	color, marker, line_style, plotname, filepath):
 	conc = []
 	aniso = [[]] #as above, the logplot function takes a list of lists
@@ -121,17 +119,17 @@ def singleplot(data, sample, labels, units, fiteq, normalization,
 		conc.append(data[0][i][0])
 	for i in range(len(data[sample])):
 		aniso[0].append(data[sample][i][1])
-	fits_x, fits_y, y_norm, param = getkdfit(conc, aniso, fiteq, units)
+	fits_x, fits_y, y_norm, param = getkdfit(conc, aniso, fiteq, p0, units)
 	#plot data as anisotropy
 	logplot(conc, aniso, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 		param, ', '.join(labels_temp), color, marker, line_style, plotname, filepath)
 	#plot data as fraction bound
 	if normalization == 1:
-		normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, units)
+		normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0, units)
 		logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 			normparam, ', '.join(labels_temp)+' (Normalized)',color, marker, line_style, plotname+'_normalized', filepath)
 
-def multiplot(data, perplot, labels, units, fiteq, normalization, 
+def multiplot(data, perplot, labels, units, fiteq, p0, normalization, 
 	color, marker, line_style, plotname, filepath):
 	conc = []
 	aniso = []
@@ -159,11 +157,11 @@ def multiplot(data, perplot, labels, units, fiteq, normalization,
 			labels_temp.append(labels[masterindex])
 			masterindex+=1
 		#fit and plot using the condensed sample list
-		fits_x, fits_y, y_norm, param = getkdfit(conc, aniso_temp, fiteq, units)
+		fits_x, fits_y, y_norm, param = getkdfit(conc, aniso_temp, fiteq, p0, units)
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, units)
+			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, ', '.join(labels_temp)+' (Normalized)',color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
 		plotcounter+=1
@@ -175,15 +173,15 @@ def multiplot(data, perplot, labels, units, fiteq, normalization,
 			aniso_temp.append(aniso[masterindex])
 			labels_temp.append(labels[masterindex])
 			masterindex+=1
-		fits_x, fits_y, y_norm, param = getkdfit(conc, aniso_temp, fiteq, units)
+		fits_x, fits_y, y_norm, param = getkdfit(conc, aniso_temp, fiteq, p0, units)
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, units)
+			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, ', '.join(labels_temp)+' (Normalized)', color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
 #it was easier for me to just define separate functions for a quadratic fit
-def quad_singleplot(data, sample, labels, units, conc_L, fiteq, normalization, 
+def quad_singleplot(data, sample, labels, units, conc_L, fiteq, p0, normalization, 
 	color, marker, line_style, plotname, filepath):
 	conc = []
 	aniso = [[]] #as above, the logplot function takes a list of lists
@@ -194,17 +192,17 @@ def quad_singleplot(data, sample, labels, units, conc_L, fiteq, normalization,
 		conc.append(data[0][i][0])
 	for i in range(len(data[sample])):
 		aniso[0].append(data[sample][i][1])
-	fits_x, fits_y, y_norm, param = getquadfit(conc, aniso, conc_L, fiteq, units)
+	fits_x, fits_y, y_norm, param = getquadfit(conc, aniso, conc_L, fiteq, p0, units)
 	#plot data as anisotropy
 	logplot(conc, aniso, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 		param, ', '.join(labels_temp), color, marker, line_style, plotname, filepath)
 	#plot data as fraction bound
 	if normalization == 1:
-		normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, units)
+		normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0, units)
 		logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 			normparam, ', '.join(labels_temp)+' (Normalized)',color, marker, line_style, plotname+'_normalized', filepath)
 
-def quad_multiplot(data, perplot, labels, units, conc_L, fiteq, normalization, 
+def quad_multiplot(data, perplot, labels, units, conc_L, fiteq, p0, normalization, 
 	color, marker, line_style, plotname, filepath):
 	#fix sqrt with normalization
 	conc = []
@@ -233,11 +231,11 @@ def quad_multiplot(data, perplot, labels, units, conc_L, fiteq, normalization,
 			labels_temp.append(labels[masterindex])
 			masterindex+=1
 		#fit and plot using the condensed sample list
-		fits_x, fits_y, y_norm, param = getquadfit(conc, aniso_temp, conc_L, fiteq, units)
+		fits_x, fits_y, y_norm, param = getquadfit(conc, aniso_temp, conc_L, fiteq, p0, units)
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, units)
+			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, ', '.join(labels_temp)+' (Normalized)',color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
 		plotcounter+=1
@@ -249,10 +247,10 @@ def quad_multiplot(data, perplot, labels, units, conc_L, fiteq, normalization,
 			aniso_temp.append(aniso[masterindex])
 			labels_temp.append(labels[masterindex])
 			masterindex+=1
-		fits_x, fits_y, y_norm, param = getquadfit(conc, aniso_temp, conc_L, fiteq, units)
+		fits_x, fits_y, y_norm, param = getquadfit(conc, aniso_temp, conc_L, fiteq, p0, units)
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, units)
+			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, ', '.join(labels_temp)+' (Normalized)', color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)

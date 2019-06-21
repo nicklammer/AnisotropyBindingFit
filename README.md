@@ -11,3 +11,4 @@ To use:
 The read script can be edited to use different data formats as long as it goes to the plotting script in the correct format:
 	List where each entry is a list of x, y pairs that corresponds to one sample. Example: [[(x1.1, y1.1),(x1.2, y1.2)], [(x2.1, y2.1), (x2.2, y2.2)]] for samples 1 and 2.
 
+Quadratic fitting is not complete. Need other data to compare the fits to.

@@ -14,7 +14,6 @@ titrations = 19
 start_col = 1
 start_row = 1
 
-
 #starting 1X concentration for protein and the dilution factor
 #this script assumes each titration between samples are the same concentration. if not, try using the single plotting for each
 concentration_start = (90400/(18*2))
@@ -39,6 +38,10 @@ labels = ["A","C","E","G",
 fiteq = "kdfit"
 #if using quad, supply constant concentration of ligand
 conc_L = 2
+#supply initial values for fitting parameters
+Kdi = 20
+Si = 0.1
+Oi = 0.05
 
 #plot options
 perplot = 4

@@ -16,6 +16,10 @@ def run():
 	labels = config.labels
 	fiteq = config.fiteq
 	conc_L = float(config.conc_L)
+	Kdi = float(config.Kdi)
+	Si = float(config.Si)
+	Oi = float(config.Oi)
+	p0 = [Kdi, Si, Oi]
 	single = config.single
 	sample = config.sample
 	perplot = config.perplot
@@ -39,18 +43,18 @@ def run():
 	#fit data to simplified binding isotherm
 	if fiteq == "kdfit":
 		if single == 0:
-			plot.singleplot(formatted,sample,labels,units,plot.kdfit,normalization,
+			plot.singleplot(formatted,sample,labels,units,plot.kdfit,p0,normalization,
 				color_multiple,marker,line_style,plotname,path_plot)
 		elif single == 1:
-			plot.multiplot(formatted,perplot,labels,units,plot.kdfit,normalization,
+			plot.multiplot(formatted,perplot,labels,units,plot.kdfit,p0,normalization,
 				color_multiple,marker,line_style,plotname,path_plot)
 
 	elif fiteq == "quad":
 		if single == 0:
-			plot.quad_singleplot(formatted,sample,labels,units,conc_L,plot.quad,normalization,
+			plot.quad_singleplot(formatted,sample,labels,units,conc_L,plot.quad,p0,normalization,
 				color_multiple,marker,line_style,plotname,path_plot)
 		elif single == 1:
-			plot.quad_multiplot(formatted,perplot,labels,units,conc_L,plot.quad,normalization,
+			plot.quad_multiplot(formatted,perplot,labels,units,conc_L,plot.quad,p0,normalization,
 				color_multiple,marker,line_style,plotname,path_plot)
 
 	print ("data is cool")
