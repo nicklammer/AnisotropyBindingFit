@@ -20,6 +20,8 @@ def getkdfit(x, y, fiteq, units):
 	fits_y = []
 	y_norm = []
 	param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"]]
+	x = np.array(x) #making them arrays makes the math easier
+	y = np.array(y)
 	p0 = [20.0, 0.1, 0.05]
 	for i in range(len(y)):
 		popt, pcov = opt.curve_fit(fiteq, x, y[i], p0=p0)
@@ -43,8 +45,9 @@ def getquadfit(x, y, conc_L, fiteq, units):
 	fits_x = []
 	fits_y = []
 	y_norm = []
-	conc_L = np.float64(conc_L)
 	param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"]]
+	x = np.array(x)
+	y = np.array(y)
 	p0 = [20.0, 0.1, 0.05]
 	for i in range(len(y)):
 		#use a lambda function to fix L in the quad equation
@@ -54,8 +57,7 @@ def getquadfit(x, y, conc_L, fiteq, units):
 		#use estimated parameters to normalize anisotropy to be fraction bound
 		y_norm.append((y[i]-popt[2])/popt[1])
 		#calculate R-squared
-		residuals = y[i] - fiteq(x, popt[0], popt[1], popt[2], conc_L)
-		#residuals = y[i] - (lambda P, Kd, S, O: fiteq(x, popt[0], popt[1], popt[2], conc_L))
+		residuals = (y[i] - fiteq(x, popt[0], popt[1], popt[2], conc_L))
 		ss_res = np.sum(residuals**2)
 		ss_tot = np.sum((y[i]-np.mean(y[i]))**2)
 		r_sq = 1-(ss_res/ss_tot)
@@ -204,6 +206,7 @@ def quad_singleplot(data, sample, labels, units, conc_L, fiteq, normalization,
 
 def quad_multiplot(data, perplot, labels, units, conc_L, fiteq, normalization, 
 	color, marker, line_style, plotname, filepath):
+	#fix sqrt with normalization
 	conc = []
 	aniso = []
 	holder = []

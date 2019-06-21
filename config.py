@@ -35,10 +35,10 @@ labels = ["A","C","E","G",
 	"I","K","M","O",
 	]
 
-#equation for fit. kdfit or quad for now
+#equation for fit. kdfit or quad for now. there's an issue with taking the sqrt of a negative number/zero when normalizing with quadratic fit
 fiteq = "kdfit"
 #if using quad, supply constant concentration of ligand
-conc_L = 3
+conc_L = 2
 
 #plot options
 perplot = 4
