@@ -1,6 +1,8 @@
 # AnisotropyBindingFit
 Scripts for fitting raw fluorescence anisotropy data for binding experiments
 
+I wrote this for python 2.7.12. In python 3 they replaced basestring with str (see read.py). If you use python 3, just change every instance of basestring into str. All prints were written to work on 3.
+
 Requires xlrd, xlwt, xlutils, scipy, numpy, and matplotlib
 
 Currently only reads a specific format for the raw data (microplate view, parallel and perpendicular intensities separated)
