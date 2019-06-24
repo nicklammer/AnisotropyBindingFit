@@ -1,6 +1,8 @@
 # AnisotropyBindingFit
 Scripts for fitting raw fluorescence anisotropy data for binding experiments
 
+Requires xlrd, xlwt, xlutils, scipy, numpy, and matplotlib
+
 Currently only reads a specific format for the raw data (microplate view, parallel and perpendicular intensities separated)
 
 To use:
