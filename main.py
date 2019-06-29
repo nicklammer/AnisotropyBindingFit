@@ -1,61 +1,61 @@
-import config
+import configparse
 import read
 import plot
+import sys
 
 def run():
-	file_raw = config.file_raw
-	file_formatted = config.file_formatted
-	rows = config.rows
-	titrations = config.titrations
-	start_col = config.start_col
-	start_row = config.start_row
-	concentration = config.concentration_start
-	dilution_factor = config.dilution_factor
-	units = config.units
-	dupe = config.duplicates
-	labels = config.labels
-	fiteq = config.fiteq
-	conc_L = float(config.conc_L)
-	Kdi = float(config.Kdi)
-	Si = float(config.Si)
-	Oi = float(config.Oi)
-	p0 = [Kdi, Si, Oi]
-	single = config.single
-	sample = config.sample
-	perplot = config.perplot
-	color_single = config.color_single
-	color_multiple = config.color_multiple
-	marker = config.marker
-	line_style = config.line_style
-	plotname = config.plotname
-	path_plot = config.path_plot
-	normalization = config.normalization
+	file_raw = configparse.file_raw
+	path_output = configparse.path_output
+	file_anisotropy= path_output+'anisotropy.xls'
+	rows = configparse.rows
+	titrations = configparse.titrations
+	start_col = configparse.start_col
+	start_row = configparse.start_row
+	concentration = configparse.concentration
+	dilution_factor = configparse.dilution_factor
+	units = configparse.units
+	dupe = configparse.dupe
+	single = configparse.single
+	sample = configparse.sample
+	labels = configparse.labels
+	fiteq = configparse.fiteq
+	conc_L = configparse.conc_L
+	p0 = configparse.p0
+	normalization = configparse.normalization
+	perplot = configparse.perplot
+	color_single = configparse.color_single
+	color_multiple = configparse.color_multiple
+	marker = configparse.marker
+	line_style = configparse.line_style
+	plotname = configparse.plotname
+
+
 
 	#pick between a row layout or columns 
-	if rows == 0:
+	if rows == False:
 		FA = read.excel_open_colsamples(file_raw, titrations, start_row)
-	elif rows == 1:
+	else:
 		FA = read.excel_open_rowsamples(file_raw, titrations, start_col)
 
 	#read data excel file, calculate anisotropy, and output in a formatted excel sheet
 	formatted = read.format(concentration, dilution_factor, dupe, FA)
-	read.data_write(formatted, labels, file_formatted)
+	read.data_write(formatted, labels, file_anisotropy)
 	#fit data to simplified binding isotherm
 	if fiteq == "kdfit":
-		if single == 0:
+		if single == True:
 			plot.singleplot(formatted,sample,labels,units,plot.kdfit,p0,normalization,
-				color_multiple,marker,line_style,plotname,path_plot)
-		elif single == 1:
+				color_multiple,marker,line_style,plotname,path_output)
+		else:
 			plot.multiplot(formatted,perplot,labels,units,plot.kdfit,p0,normalization,
-				color_multiple,marker,line_style,plotname,path_plot)
+				color_multiple,marker,line_style,plotname,path_output)
 
 	elif fiteq == "quad":
-		if single == 0:
+		if single == True:
 			plot.quad_singleplot(formatted,sample,labels,units,conc_L,plot.quad,p0,normalization,
-				color_multiple,marker,line_style,plotname,path_plot)
-		elif single == 1:
+				color_multiple,marker,line_style,plotname,path_output)
+		else:
 			plot.quad_multiplot(formatted,perplot,labels,units,conc_L,plot.quad,p0,normalization,
-				color_multiple,marker,line_style,plotname,path_plot)
+				color_multiple,marker,line_style,plotname,path_output)
 
 	print ("data is cool")
 

@@ -93,7 +93,7 @@ def format(concentration, dilution_factor, dupe, FA):
 		dilutions.append(float(concentration)/(float(dilution_factor)**(i)))
 	#if samples were done in duplicate, takes average of the two anisotropy values
 	#also pairs the concentrations and anisotropy values
-	if dupe == 1:
+	if dupe == True:
 		for a in range(len(FA)):
 			if a%2 == 0:
 				for b in range(len(FA[a])):
@@ -104,7 +104,7 @@ def format(concentration, dilution_factor, dupe, FA):
 			holder = zip(dilutions, i)
 			combined.append(holder)
 			holder = []
-	elif dupe == 0:
+	else:
 		for i in FA:
 			holder = zip(dilutions, i)
 			combined.append(holder)
