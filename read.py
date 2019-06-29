@@ -79,7 +79,6 @@ def excel_open_colsamples(file_raw, titrations, start_row):
 			holder.append(((parallel[a][b]-perpendicular[a][b])/(parallel[a][b]+2*perpendicular[a][b])))
 		FA.append(holder)
 		holder = []
-
 	return FA
 
 #formats data into a big list with each sample being a list of (concentration, anisotropy) pairs

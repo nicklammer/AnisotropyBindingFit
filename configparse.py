@@ -33,7 +33,8 @@ normalization = parser.getboolean('fit options', 'normalization')
 #plot options
 perplot = parser.getint('plot options', 'per plot')
 color_single_key = parser.get('plot options', 'color single')
-color_multiple_key_temp = parser.get('plot options', 'color multiple')
+#strip is a work around for the gui editor. I can't get it to work there
+color_multiple_key_temp = parser.get('plot options', 'color multiple').strip(", ")
 color_multiple_key = color_multiple_key_temp.split(', ')
 marker_chosen = parser.get('plot options', 'marker style')
 line_chosen = parser.get('plot options', 'line style')
