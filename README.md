@@ -1,14 +1,15 @@
 # AnisotropyBindingFit
 Scripts for fitting raw fluorescence anisotropy data for binding experiments
 
-I wrote this for python 2.7.12. In python 3 they replaced basestring with str (see read.py). If you use python 3, just change every instance of basestring into str. All prints were written to work on 3.
+I wrote this for python 2.7.16. In python 3 they replaced basestring with str (see read.py). If you use python 3, just change every instance of basestring into str. All prints were written to work on 3.
 
 Requires xlrd, xlwt, xlutils, scipy, numpy, and matplotlib
 
 Currently only reads a specific format for the raw data (microplate view, parallel and perpendicular intensities separated)
 
 To use:
-	Edit config to specify filepaths, plate information, plot customization, etc. There are notes in the config for more detailed info. 
+	Edit config to specify filepaths, plate information, plot customization, etc. There are notes in the config for more detailed info.
+	Can also run the gui editor if you don't want to edit the text file.
 	Run main. 
 	If everything works, it should pop out an excel sheet with the protein concentrations and corresponding anisotropy values and log plots using those values
 
