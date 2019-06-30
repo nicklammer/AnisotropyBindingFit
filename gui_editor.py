@@ -145,7 +145,7 @@ single_button = Radiobutton(tab1, text="Single", variable=sample_number_choice, 
 multiple_button = Radiobutton(tab1, text="Multiple", variable=sample_number_choice, value=False, command=sample_multiple)
 single_button.grid(row=14)
 multiple_button.grid(row=14, column=1, sticky='w')
-Label(tab1, text="If single, which sample?\n(Count from A-P or 1-24 and use that number)").grid(row=15)
+Label(tab1, text="If single, which sample?\n(Number of the sample in order)").grid(row=15)
 single_box = Entry(tab1)
 single_box.grid(row=15, column=1, sticky='w', pady=2)
 single_box.insert('end', sample)

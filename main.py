@@ -23,7 +23,7 @@ def run():
 	p0 = configparse.p0
 	normalization = configparse.normalization
 	perplot = configparse.perplot
-	color_single = configparse.color_single
+	color_single = [configparse.color_single]
 	color_multiple = configparse.color_multiple
 	marker = configparse.marker
 	line_style = configparse.line_style
@@ -44,7 +44,7 @@ def run():
 	if fiteq == "kdfit":
 		if single == True:
 			plot.singleplot(formatted,sample,labels,units,plot.kdfit,p0,normalization,
-				color_multiple,marker,line_style,plotname,path_output)
+				color_single,marker,line_style,plotname,path_output)
 		else:
 			plot.multiplot(formatted,perplot,labels,units,plot.kdfit,p0,normalization,
 				color_multiple,marker,line_style,plotname,path_output)
