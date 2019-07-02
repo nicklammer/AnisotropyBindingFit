@@ -27,6 +27,7 @@ color_single = configparse.color_single_key
 color_multiple = configparse.color_multiple_key_temp
 marker = configparse.marker_chosen
 line_style = configparse.line_chosen
+plottitle = configparse.plottitle
 plotname = configparse.plotname
 colors_key = configparse.colors_key
 marker_key = configparse.marker_key
@@ -233,10 +234,14 @@ line_dd = Combobox(tab2, values=line_key)
 line_dd.grid(row=6, column=3)
 line_dd.insert('end', line_style)
 
+Label(tab2, text="Plot title (for each plot):").grid(row=7, column=2)
+title_box = Entry(tab2)
+title_box.grid(row=7, column=3)
+title_box.insert('end', plottitle)
 
-Label(tab2, text="Name for the plots").grid(row=7, column=2)
+Label(tab2, text="File name for the plots:").grid(row=8, column=2)
 plotname_box = Entry(tab2)
-plotname_box.grid(row=7, column=3)
+plotname_box.grid(row=8, column=3)
 plotname_box.insert('end', plotname)
 
 #function for writing everything to the config.ini
@@ -272,6 +277,7 @@ def save_everything():
 	config_set('plot options', 'color multiple', color_multiple_box.get('1.0', 'end'))
 	config_set('plot options', 'marker style', marker_dd.get())
 	config_set('plot options', 'line style', line_dd.get())
+	config_set('plot options', 'plot title', title_box.get())
 	config_set('plot options', 'plot name', plotname_box.get())
 
 	config_write('config.ini')

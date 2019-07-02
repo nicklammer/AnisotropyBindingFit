@@ -39,6 +39,7 @@ color_multiple_key_temp = parser.get('plot options', 'color multiple').strip(", 
 color_multiple_key = color_multiple_key_temp.split(', ')
 marker_chosen = parser.get('plot options', 'marker style')
 line_chosen = parser.get('plot options', 'line style')
+plottitle = parser.get('plot options', 'plot title')
 plotname = parser.get('plot options', 'plot name')
 
 #make the color dictionary, pull values for colors saved to the config as keys
