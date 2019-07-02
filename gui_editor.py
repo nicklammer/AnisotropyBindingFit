@@ -16,7 +16,7 @@ dilution_factor = configparse.dilution_factor
 units = configparse.units
 dupe = configparse.dupe
 single = configparse.single
-sample = configparse.sample
+sample = configparse.sample_temp
 labels = configparse.labels
 fiteq = configparse.fiteq
 conc_L = configparse.conc_L
@@ -35,10 +35,6 @@ line_key = configparse.line_key
 root = Tk()
 def exit_client():
 	exit()
-def printentry(entry):
-	print(entry.get())
-def printvar(var):
-	print(var.get())
 def browse_sheet():
 	global sheet_path
 	filename = tkFileDialog.askopenfilename(title="Select data sheet", filetypes=(("Excel sheets","*.xlsx *.xls"),("All files", "*.*")))
@@ -54,13 +50,19 @@ def rc_cols():
 	start_col_box.config(state='disabled')
 	start_row_box.config(state='enabled')
 def sample_single():
-	single_box.config(state='enabled')
+	sample_box.config(state='enabled')
 	color_single_dd.config(state='enabled')
 	perplot_box.config(state='disabled')
 	color_multiple_dd.config(state='disabled')
 	color_multiple_box.config(state='disabled')
 def sample_multiple():
-	single_box.config(state='disabled')
+	sample_box.config(state='enabled')
+	color_single_dd.config(state='disabled')
+	perplot_box.config(state='enabled')
+	color_multiple_dd.config(state='enabled')
+	color_multiple_box.config(state='normal')
+def sample_all():
+	sample_box.config(state='disabled')
 	color_single_dd.config(state='disabled')
 	perplot_box.config(state='enabled')
 	color_multiple_dd.config(state='enabled')
@@ -139,18 +141,20 @@ units_box.grid(row=12, column=1, sticky='w', pady=2)
 units_box.insert('end', units)
 
 Label(tab1, text="Single sample or multiple?").grid(row=13)
-sample_number_choice = BooleanVar()
+sample_number_choice = IntVar()
 sample_number_choice.set(single)
-single_button = Radiobutton(tab1, text="Single", variable=sample_number_choice, value=True, command=sample_single)
-multiple_button = Radiobutton(tab1, text="Multiple", variable=sample_number_choice, value=False, command=sample_multiple)
+single_button = Radiobutton(tab1, text="Single", variable=sample_number_choice, value=0, command=sample_single)
+multiple_button = Radiobutton(tab1, text="Multiple", variable=sample_number_choice, value=1, command=sample_multiple)
+all_button = Radiobutton(tab1, text="All", variable=sample_number_choice, value=2, command=sample_all)
 single_button.grid(row=14)
 multiple_button.grid(row=14, column=1, sticky='w')
-Label(tab1, text="If single, which sample?\n(Number of the sample in order)").grid(row=15)
-single_box = Entry(tab1)
-single_box.grid(row=15, column=1, sticky='w', pady=2)
-single_box.insert('end', sample)
-if single == False:
-	single_box.config(state='disabled')
+all_button.grid(row=14, column=1)
+Label(tab1, text="If single or multiple, which sample(s)?\n(Number of the sample(s) in order)").grid(row=15)
+sample_box = Entry(tab1)
+sample_box.grid(row=15, column=1, sticky='w', pady=2)
+sample_box.insert('end', sample)
+if single == 2:
+	sample_box.config(state='disabled')
 
 Label(tab1, text="Sample labels\n(Enter names in order separated by a comma and space)").grid(row=16)
 label_box = Text(tab1, height=2, width=40, borderwidth=2)
@@ -255,7 +259,7 @@ def save_everything():
 	config_set('sample layout', 'units', units_box.get())
 	config_set('sample layout', 'duplicates', str(duplicate.get()))
 	config_set('sample layout', 'single', str(sample_number_choice.get()))
-	config_set('sample layout', 'sample', single_box.get())
+	config_set('sample layout', 'sample', sample_box.get())
 	config_set('sample layout', 'labels', label_box.get('1.0', 'end'))
 	config_set('fit options', 'fiteq', fiteq_value.get())
 	config_set('fit options', 'ligand concentration', conc_L_box.get())
@@ -271,11 +275,16 @@ def save_everything():
 	config_set('plot options', 'plot name', plotname_box.get())
 
 	config_write('config.ini')
+	print("Saved")
+# def save_and_plot():
+# 	save_everything()
 
 
 savebutton = Button(root, text="Save", command=save_everything)
 savebutton.grid(row=1, column=0, padx=5, pady=5, sticky='e')
+# saveandplotbutton = Button(root, text="Save and plot", command=save_and_plot)
+# saveandplotbutton.grid(row=1, column=1, padx=5, pady=5, sticky='e')
 exitbutton = Button(root, text="Exit", command=exit_client)
-exitbutton.grid(row=1, column=1, padx=5, pady=5, sticky='w')
+exitbutton.grid(row=1, column=2, padx=5, pady=5, sticky='w')
 
 root.mainloop()

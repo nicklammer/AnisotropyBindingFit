@@ -18,8 +18,9 @@ concentration = parser.getfloat('sample layout', 'max concentration')
 dilution_factor = parser.getfloat('sample layout', 'dilution factor')
 units = parser.get('sample layout', 'units')
 dupe = parser.getboolean('sample layout', 'duplicates')
-single = parser.getboolean('sample layout', 'single')
-sample = parser.getint('sample layout', 'sample')
+single = parser.getint('sample layout', 'single')
+sample_temp = parser.get('sample layout', 'sample')
+sample = [int(x) for x in sample_temp.split(', ')]
 labels_temp = parser.get('sample layout', 'labels')
 labels = labels_temp.split(', ')
 #fit options

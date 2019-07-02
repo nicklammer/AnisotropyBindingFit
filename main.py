@@ -1,7 +1,6 @@
 import configparse
 import read
 import plot
-import sys
 
 def run():
 	file_raw = configparse.file_raw
@@ -42,19 +41,25 @@ def run():
 	read.data_write(formatted, labels, file_anisotropy)
 	#fit data to simplified binding isotherm
 	if fiteq == "kdfit":
-		if single == True:
-			plot.singleplot(formatted,sample,labels,units,plot.kdfit,p0,normalization,
+		if single == 0:
+			plot.singleplot(formatted,sample[0],labels,units,plot.kdfit,p0,normalization,
 				color_single,marker,line_style,plotname,path_output)
+		elif single == 1:
+			plot.multiplot(formatted,sample,perplot,labels,units,plot.kdfit,p0,normalization,
+				color_multiple,marker,line_style,plotname,path_output)
 		else:
-			plot.multiplot(formatted,perplot,labels,units,plot.kdfit,p0,normalization,
+			plot.allplot(formatted,perplot,labels,units,plot.kdfit,p0,normalization,
 				color_multiple,marker,line_style,plotname,path_output)
 
 	elif fiteq == "quad":
-		if single == True:
+		if single == 0:
 			plot.quad_singleplot(formatted,sample,labels,units,conc_L,plot.quad,p0,normalization,
 				color_multiple,marker,line_style,plotname,path_output)
+		elif single == 1:
+			plot.quad_multiplot(formatted,sample,perplot,labels,units,conc_L,plot.quad,p0,normalization,
+				color_multiple,marker,line_style,plotname,path_output)
 		else:
-			plot.quad_multiplot(formatted,perplot,labels,units,conc_L,plot.quad,p0,normalization,
+			plot.quad_allplot(formatted,perplot,labels,units,conc_L,plot.quad,p0,normalization,
 				color_multiple,marker,line_style,plotname,path_output)
 
 	print ("data is cool")

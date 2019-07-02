@@ -8,7 +8,7 @@ Requires xlrd, xlwt, xlutils, scipy, numpy, and matplotlib
 Currently only reads a specific format for the raw data (microplate view, parallel and perpendicular intensities separated)
 
 To use:
-	Edit config to specify filepaths, plate information, plot customization, etc. There are notes in the config for more detailed info.
+	Edit config.ini with a text editor.
 	Can also run the gui editor if you don't want to edit the text file.
 	Run main. 
 	If everything works, it should pop out an excel sheet with the protein concentrations and corresponding anisotropy values and log plots using those values
