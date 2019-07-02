@@ -203,14 +203,14 @@ Label(tab2, text="Number of samples per plot").grid(row=1, column=2, pady=2)
 perplot_box = Entry(tab2)
 perplot_box.grid(row=1, column=3)
 perplot_box.insert('end', perplot)
-if single == True:
+if single == 0:
 	perplot_box.config(state='disabled')
 
 Label(tab2, text="Color for single sample").grid(row=2, column=2)
 color_single_dd = Combobox(tab2, values=colors_key)
 color_single_dd.grid(row=2, column=3)
 color_single_dd.insert('end', color_single)
-if single == False:
+if single in (1, 2):
 	color_single_dd.config(state='disabled')
 
 Label(tab2, text="Colors for multiple samples").grid(row=3, column=2)
@@ -220,7 +220,7 @@ color_multiple_dd.bind("<<ComboboxSelected>>", addcolor)
 color_multiple_box = Text(tab2, height=2, width=40, borderwidth=2)
 color_multiple_box.grid(row=4, column=2, columnspan=2, padx=20, pady=3)
 color_multiple_box.insert('end', color_multiple)
-if single == True:
+if single == 0:
 	color_multiple_dd.config(state='disabled')
 	color_multiple_box.config(state='disabled')
 

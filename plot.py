@@ -119,71 +119,18 @@ def singleplot(data, sample, labels, units, fiteq, p0, normalization,
 		conc.append(data[0][i][0])
 	for i in range(len(data[sample])):
 		aniso[0].append(data[sample][i][1])
+	p0_norm = [20.0, 1.0, 0.0]
 	fits_x, fits_y, y_norm, param = getkdfit(conc, aniso, fiteq, p0, units)
 	#plot data as anisotropy
 	logplot(conc, aniso, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 		param, ', '.join(labels_temp), color, marker, line_style, plotname, filepath)
 	#plot data as fraction bound
 	if normalization == 1:
-		normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0, units)
+		normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0_norm, units)
 		logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 			normparam, ', '.join(labels_temp)+' (Normalized)',color, marker, line_style, plotname+'_normalized', filepath)
 
-def multiplot(data, sample, perplot, labels, units, fiteq, p0, normalization, 
-	color, marker, line_style, plotname, filepath):
-	conc = []
-	aniso = []
-	holder = []
-	sample = [x-1 for x in sample] #convert sample numbers to index numbers
-	for i in range(len(data[0])):
-		conc.append(data[0][i][0])
-	for x in sample:
-		for n in range(len(data[x])):
-			holder.append(data[x][n][1])
-		aniso.append(holder)
-		holder=[]
-	#the rest of this is to figure out how many plots to make based on the perplot in the config
-	#plotcount gives the numer of plots minus one. leftovers gives the last one
-	plotcount=len(aniso)/perplot
-	leftovers=len(aniso)%perplot
-	#masterindex counts up per sample plotted. plotcounter counts the plots so I can number the files.
-	masterindex = 0
-	plotcounter = 1
-
-	for n in range(plotcount):#for each full plot to be made (no leftover plot)
-		aniso_temp = []
-		labels_temp = []
-		for i in range(perplot):#for each sample per plot, append lists with anisotropy and label of the sample based on masterindex
-			aniso_temp.append(aniso[masterindex])
-			labels_temp.append(labels[masterindex])
-			masterindex+=1
-		#fit and plot using the condensed sample list
-		fits_x, fits_y, y_norm, param = getkdfit(conc, aniso_temp, fiteq, p0, units)
-		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
-		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0, units)
-			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, ', '.join(labels_temp)+' (Normalized)',color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
-		plotcounter+=1
-	#deal with the rest of the samples if there are any leftovers. code is same as above.
-	if leftovers>0:
-		aniso_temp = []
-		labels_temp = []
-		for n in range(leftovers):
-			aniso_temp.append(aniso[masterindex])
-			labels_temp.append(labels[masterindex])
-			masterindex+=1
-		fits_x, fits_y, y_norm, param = getkdfit(conc, aniso_temp, fiteq, p0, units)
-		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
-		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0, units)
-			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, ', '.join(labels_temp)+' (Normalized)', color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
-
-
-def allplot(data, perplot, labels, units, fiteq, p0, normalization, 
+def multiplot(data, perplot, labels, units, fiteq, p0, normalization, 
 	color, marker, line_style, plotname, filepath):
 	conc = []
 	aniso = []
@@ -202,7 +149,7 @@ def allplot(data, perplot, labels, units, fiteq, p0, normalization,
 	#masterindex counts up per sample plotted. plotcounter counts the plots so I can number the files.
 	masterindex = 0
 	plotcounter = 1
-
+	p0_norm = [20.0, 1.0, 0.0]
 	for n in range(plotcount):#for each full plot to be made (no leftover plot)
 		aniso_temp = []
 		labels_temp = []
@@ -215,7 +162,7 @@ def allplot(data, perplot, labels, units, fiteq, p0, normalization,
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0, units)
+			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0_norm, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, ', '.join(labels_temp)+' (Normalized)',color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
 		plotcounter+=1
@@ -231,7 +178,7 @@ def allplot(data, perplot, labels, units, fiteq, p0, normalization,
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0, units)
+			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0_norm, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, ', '.join(labels_temp)+' (Normalized)', color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
 #it was easier for me to just define separate functions for a quadratic fit
@@ -251,66 +198,13 @@ def quad_singleplot(data, sample, labels, units, conc_L, fiteq, p0, normalizatio
 	logplot(conc, aniso, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 		param, ', '.join(labels_temp), color, marker, line_style, plotname, filepath)
 	#plot data as fraction bound
+	p0_norm = [20.0, 1.0, 0.0]
 	if normalization == 1:
-		normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0, units)
+		normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0_norm, units)
 		logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 			normparam, ', '.join(labels_temp)+' (Normalized)',color, marker, line_style, plotname+'_normalized', filepath)
 
-def quad_multiplot(data, sample, perplot, labels, units, conc_L, fiteq, p0, normalization, 
-	color, marker, line_style, plotname, filepath):
-	#fix sqrt with normalization
-	conc = []
-	aniso = []
-	holder = []
-	sample = [x-1 for x in sample] #convert sample numbers to index numbers
-	for i in range(len(data[0])):
-		conc.append(data[0][i][0])
-	for x in sample:
-		for n in range(len(data[x])):
-			holder.append(data[x][n][1])
-		aniso.append(holder)
-		holder=[]
-	#the rest of this is to figure out how many plots to make based on the perplot in the config
-	#plotcount gives the numer of plots minus one. leftovers gives the last one
-	plotcount=len(aniso)/perplot
-	leftovers=len(aniso)%perplot
-	#masterindex counts up per sample plotted. plotcounter counts the plots so I can number the files.
-	masterindex = 0
-	plotcounter = 1
-
-	for n in range(plotcount):#for each full plot to be made (no leftover plot)
-		aniso_temp = []
-		labels_temp = []
-		for i in range(perplot):#for each sample per plot, append lists with anisotropy and label of the sample based on masterindex
-			aniso_temp.append(aniso[masterindex])
-			labels_temp.append(labels[masterindex])
-			masterindex+=1
-		#fit and plot using the condensed sample list
-		fits_x, fits_y, y_norm, param = getquadfit(conc, aniso_temp, conc_L, fiteq, p0, units)
-		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
-		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0, units)
-			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, ', '.join(labels_temp)+' (Normalized)',color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
-		plotcounter+=1
-	#deal with the rest of the samples if there are any leftovers. code is same as above.
-	if leftovers>0:
-		aniso_temp = []
-		labels_temp = []
-		for n in range(leftovers):
-			aniso_temp.append(aniso[masterindex])
-			labels_temp.append(labels[masterindex])
-			masterindex+=1
-		fits_x, fits_y, y_norm, param = getquadfit(conc, aniso_temp, conc_L, fiteq, p0, units)
-		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
-		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0, units)
-			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, ', '.join(labels_temp)+' (Normalized)', color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
-
-def quad_allplot(data, perplot, labels, units, conc_L, fiteq, p0, normalization, 
+def quad_multiplot(data, perplot, labels, units, conc_L, fiteq, p0, normalization, 
 	color, marker, line_style, plotname, filepath):
 	#fix sqrt with normalization
 	conc = []
@@ -330,7 +224,7 @@ def quad_allplot(data, perplot, labels, units, conc_L, fiteq, p0, normalization,
 	#masterindex counts up per sample plotted. plotcounter counts the plots so I can number the files.
 	masterindex = 0
 	plotcounter = 1
-
+	p0_norm = [20.0, 1.0, 0.0]
 	for n in range(plotcount):#for each full plot to be made (no leftover plot)
 		aniso_temp = []
 		labels_temp = []
@@ -343,7 +237,7 @@ def quad_allplot(data, perplot, labels, units, conc_L, fiteq, p0, normalization,
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0, units)
+			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0_norm, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, ', '.join(labels_temp)+' (Normalized)',color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
 		plotcounter+=1
@@ -359,6 +253,6 @@ def quad_allplot(data, perplot, labels, units, conc_L, fiteq, p0, normalization,
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
 			param, ', '.join(labels_temp), color, marker, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0, units)
+			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0_norm, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, ', '.join(labels_temp)+' (Normalized)', color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)

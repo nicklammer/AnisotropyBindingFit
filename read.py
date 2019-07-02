@@ -1,6 +1,5 @@
 #script that can read FP plate excel sheet, calculate anisotropy, and reorganize data to line up with protein concentrations
 #this works for data formatted in a 384-well format from a clariostar instrument. Rows A-P, columns 1-24
-import plot
 import xlrd
 import xlwt
 from xlutils.copy import copy
@@ -36,10 +35,10 @@ def excel_open_rowsamples(file_raw, titrations, start_col):
 					holder = []
 	#calculate anisotropy, add to anisotropy list
 	for a in range(len(parallel)):
+		holder = []
 		for b in range(len(parallel[a])):
 			holder.append(((parallel[a][b]-perpendicular[a][b])/(parallel[a][b]+2*perpendicular[a][b])))
 		FA.append(holder)
-		holder = []
 
 	return FA
 
@@ -72,8 +71,7 @@ def excel_open_colsamples(file_raw, titrations, start_row):
 							if sheet_raw.cell_value(row+r, col+c) > 0 and isinstance(sheet_raw.cell_value(row+r, col+c), basestring) == False:
 								holder.append(sheet_raw.cell_value(row+r,col+c))
 						perpendicular.append(holder)
-						holder = []		
-
+						holder = []	
 	for a in range(len(parallel)):
 		for b in range(len(parallel[a])):
 			holder.append(((parallel[a][b]-perpendicular[a][b])/(parallel[a][b]+2*perpendicular[a][b])))
@@ -82,7 +80,7 @@ def excel_open_colsamples(file_raw, titrations, start_row):
 	return FA
 
 #formats data into a big list with each sample being a list of (concentration, anisotropy) pairs
-def format(concentration, dilution_factor, dupe, FA):
+def format(concentration, dilution_factor, single, sample, dupe, FA):
 	dilutions = []
 	holder = []
 	FAavg = []
@@ -108,7 +106,10 @@ def format(concentration, dilution_factor, dupe, FA):
 			holder = zip(dilutions, i)
 			combined.append(holder)
 			holder = []
-	
+	if single in (0, 1):
+		for x in sample:
+			holder.append(combined[x])
+		combined = holder
 	return combined
 
 #writes a new excel sheet with concentrations and anisotropy values for each sample. also includes sample labels
