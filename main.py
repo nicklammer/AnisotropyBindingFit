@@ -28,7 +28,7 @@ def run():
 	line_style = configparse.line_style
 	plottitle = configparse.plottitle
 	plotname = configparse.plotname
-
+	
 	if single in (0, 1):
 		sample = [x-1 for x in sample]
 	#pick between a row layout or columns 

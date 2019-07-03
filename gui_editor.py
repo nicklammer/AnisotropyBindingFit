@@ -2,6 +2,7 @@ from Tkinter import *
 from ttk import *
 import tkFileDialog
 import configparse
+import os
 from ConfigParser import SafeConfigParser
 
 #import the current config
@@ -245,8 +246,11 @@ plotname_box.grid(row=8, column=3)
 plotname_box.insert('end', plotname)
 
 #function for writing everything to the config.ini
+dir_path = os.path.dirname(os.path.realpath(__file__))
+config_path = os.path.join(dir_path, 'config.ini')
+print(config_path)
 parser = SafeConfigParser()
-parser.read('config.ini')
+parser.read(config_path)
 def config_set(section, option, value):
 	parser.set(section, option, value)
 def config_write(file):
@@ -265,7 +269,7 @@ def save_everything():
 	config_set('sample layout', 'duplicates', str(duplicate.get()))
 	config_set('sample layout', 'single', str(sample_number_choice.get()))
 	config_set('sample layout', 'sample', sample_box.get())
-	config_set('sample layout', 'labels', label_box.get('1.0', 'end'))
+	config_set('sample layout', 'labels', label_box.get('1.0', 'end').replace('%','%%'))
 	config_set('fit options', 'fiteq', fiteq_value.get())
 	config_set('fit options', 'ligand concentration', conc_L_box.get())
 	config_set('fit options', 'Kdi', kd_box.get())
@@ -277,10 +281,10 @@ def save_everything():
 	config_set('plot options', 'color multiple', color_multiple_box.get('1.0', 'end'))
 	config_set('plot options', 'marker style', marker_dd.get())
 	config_set('plot options', 'line style', line_dd.get())
-	config_set('plot options', 'plot title', title_box.get())
-	config_set('plot options', 'plot name', plotname_box.get())
+	config_set('plot options', 'plot title', title_box.get().replace('%', '%%'))
+	config_set('plot options', 'plot name', plotname_box.get().replace('%', '%%'))
 
-	config_write('config.ini')
+	config_write(config_path)
 	print("Saved")
 # def save_and_plot():
 # 	save_everything()

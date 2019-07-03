@@ -1,10 +1,15 @@
 #config parser for FA plotting
 from ConfigParser import SafeConfigParser
+import os
 
 parser = SafeConfigParser()
 parsestyle = SafeConfigParser()
-parser.read('config.ini')
-parsestyle.read('plot_style.ini')
+dir_path = os.path.dirname(os.path.realpath(__file__))
+config_path = os.path.join(dir_path, 'config.ini')
+style_path = os.path.join(dir_path, 'plot_style.ini')
+parser.read(config_path)
+parsestyle.read(style_path)
+
 
 #file options
 file_raw = parser.get('file options', 'file raw')
