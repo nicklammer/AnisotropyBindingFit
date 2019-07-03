@@ -248,7 +248,6 @@ plotname_box.insert('end', plotname)
 #function for writing everything to the config.ini
 dir_path = os.path.dirname(os.path.realpath(__file__))
 config_path = os.path.join(dir_path, 'config.ini')
-print(config_path)
 parser = SafeConfigParser()
 parser.read(config_path)
 def config_set(section, option, value):
