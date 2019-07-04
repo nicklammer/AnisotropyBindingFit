@@ -24,11 +24,12 @@ def run():
 	perplot = configparse.perplot
 	color_single = [configparse.color_single]
 	color_multiple = configparse.color_multiple
+	marker_size = configparse.marker_size
 	marker = configparse.marker
+	line_width = configparse.line_width
 	line_style = configparse.line_style
 	plottitle = configparse.plottitle
 	plotname = configparse.plotname
-	
 	if single in (0, 1):
 		sample = [x-1 for x in sample]
 	#pick between a row layout or columns 
@@ -46,18 +47,18 @@ def run():
 	if fiteq == "kdfit":
 		if single == 0:
 			plot.singleplot(formatted,sample[0],labels,units,plot.kdfit,p0,normalization,
-				plottitle, color_single,marker,line_style,plotname,path_output)
+				plottitle,color_single,marker_size,marker,line_width,line_style,plotname,path_output)
 		else:
 			plot.multiplot(formatted,perplot,labels,units,plot.kdfit,p0,normalization,
-				plottitle, color_multiple,marker,line_style,plotname,path_output)
+				plottitle, color_multiple,marker_size,marker,line_width,line_style,plotname,path_output)
 	#quadratic fitting
 	elif fiteq == "quad":
 		if single == 0:
-			plot.quad_singleplot(formatted,sample,labels,units,conc_L,plot.quad,p0,normalization,
-				plottitle, color_multiple,marker,line_style,plotname,path_output)
+			plot.quad_singleplot(formatted,sample[0],labels,units,conc_L,plot.quad,p0,normalization,
+				plottitle, color_multiple,marker_size,marker,line_width,line_style,plotname,path_output)
 		else:
 			plot.quad_multiplot(formatted,perplot,labels,units,conc_L,plot.quad,p0,normalization,
-				plottitle, color_multiple,marker,line_style,plotname,path_output)
+				plottitle, color_multiple,marker_size,marker,line_width,line_style,plotname,path_output)
 
 	print ("data is cool")
 

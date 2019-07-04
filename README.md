@@ -9,7 +9,7 @@ Currently only reads a specific format for the raw data (microplate view, parall
 
 To use:
 	Edit config.ini with a text editor. Use %% instead of % in names/labels to avoid interpolation errors.
-	Can also run the gui editor if you don't want to edit the text file.
+	Can also run the gui editor if you don't want to edit the text file. If you want to keep a config to reuse, copy config.ini and rename it. Then load it in the gui.
 	Run main. 
 	If everything works, it should pop out an excel sheet with the protein concentrations and corresponding anisotropy values and log plots using those values
 

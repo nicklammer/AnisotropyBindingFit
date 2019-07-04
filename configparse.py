@@ -10,7 +10,6 @@ style_path = os.path.join(dir_path, 'plot_style.ini')
 parser.read(config_path)
 parsestyle.read(style_path)
 
-
 #file options
 file_raw = parser.get('file options', 'file raw')
 path_output = parser.get('file options', 'output folder')
@@ -43,7 +42,9 @@ color_single_key = parser.get('plot options', 'color single')
 color_multiple_key_temp = parser.get('plot options', 'color multiple').strip(", ")
 color_multiple_key = color_multiple_key_temp.split(', ')
 marker_chosen = parser.get('plot options', 'marker style')
+marker_size = parser.getfloat('plot options', 'marker size')
 line_chosen = parser.get('plot options', 'line style')
+line_width = parser.getfloat('plot options', 'line width')
 plottitle = parser.get('plot options', 'plot title')
 plotname = parser.get('plot options', 'plot name')
 

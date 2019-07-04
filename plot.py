@@ -68,9 +68,9 @@ def getquadfit(x, y, conc_L, fiteq, p0, units):
 
 #general function for scatter plot with a log x scale with a table underneath
 def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param, 
-	title, color, marker, line_style, plotname, filepath):
-	fig = plt.figure(figsize=(9.375,9.375), dpi=100) #forces figure size and shape 
-	fig.subplots_adjust(left=0.1, right=0.9) #forgot what this does
+	title, color, marker_size, marker, line_width, line_style, plotname, filepath):
+	fig = plt.figure(figsize=(7.0,9.0), dpi=100) #forces figure size and shape 
+	fig.subplots_adjust(left=0.125, right=0.95, bottom=0.05, top=0.9) #adjusts margins
 	ax1 = plt.subplot2grid((6, 1), (0,0), rowspan=4) #subplot for scatter
 	table = plt.subplot2grid((6, 1), (5,0)) #subplot for table
 	#setup lists for table widths, labels, and colors
@@ -85,7 +85,7 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 	table_color = ['w']
 	for a in color:
 		table_color.append(a)
-	table = plt.table(cellText=param, loc="upper center", colLabels=table_labels,
+	table = plt.table(cellText=param, loc="lower center", colLabels=table_labels,
 		cellLoc="center", colWidths=table_widths, colColours=table_color)
 	table.auto_set_font_size(False)
 	table.set_fontsize(11)
@@ -93,7 +93,7 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 	for (row,column), cell in table.get_celld().items():
 		if (row==0) or (column==0):
 			cell.set_text_props(fontproperties=FontProperties(weight='bold', size=11))
-	table.scale(1.25,2) #don't remember how this works
+	table.scale(1.25,2) #scales column width and row heights
 	plt.axis('off') #removes plot axes for the table
 	ax1.set_title(title)
 	ax1.set_xscale('log')
@@ -101,18 +101,17 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 	ax1.set_xlabel("[Protein] ("+units+")")
 	#this part assumes that y is a list of lists. each inner list is one sample to plot
 	for i in range(len(y)):
-		ax1.scatter(x, y[i], color=color[i], marker=marker, label='anisotropy')
-		ax1.plot(fits_x[i], fits_y[i], color=color[i], linestyle=line_style, label="fit")
+		ax1.scatter(x, y[i], s=20*marker_size, color=color[i], marker=marker, label='anisotropy')
+		ax1.plot(fits_x[i], fits_y[i], color=color[i], linewidth=line_width, linestyle=line_style, label="fit")
 	#save as png for quick viewing, svg for further editing
 	plt.savefig(filepath+plotname+'.png')
 	plt.savefig(filepath+plotname+'.svg')
 
 #plot a single sample
 def singleplot(data, sample, labels, units, fiteq, p0, normalization, title,
-	color, marker, line_style, plotname, filepath):
+	color, marker_size, marker, line_width, line_style, plotname, filepath):
 	conc = []
 	aniso = [[]] #as above, the logplot function takes a list of lists
-	sample -= 1 #this is just to convert the sample number given in config to an index 
 	labels_temp = [labels[sample]]
 	#split up data into a list of concentrations and a list of anisotropy values
 	for i in range(len(data[0])):
@@ -123,15 +122,16 @@ def singleplot(data, sample, labels, units, fiteq, p0, normalization, title,
 	fits_x, fits_y, y_norm, param = getkdfit(conc, aniso, fiteq, p0, units)
 	#plot data as anisotropy
 	logplot(conc, aniso, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-		param, title, color, marker, line_style, plotname, filepath)
+		param, title, color, marker_size, marker, line_width, line_style, plotname, filepath)
 	#plot data as fraction bound
 	if normalization == 1:
 		normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0_norm, units)
 		logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-			normparam, title+' (Normalized)',color, marker, line_style, plotname+'_normalized', filepath)
+			normparam, title+' (Normalized)', color, marker_size, marker,
+			line_width, line_style, plotname+'_normalized', filepath)
 
 def multiplot(data, perplot, labels, units, fiteq, p0, normalization, title,
-	color, marker, line_style, plotname, filepath):
+	color, marker_size, marker, line_width, line_style, plotname, filepath):
 	conc = []
 	aniso = []
 	holder = []
@@ -160,11 +160,12 @@ def multiplot(data, perplot, labels, units, fiteq, p0, normalization, title,
 		#fit and plot using the condensed sample list
 		fits_x, fits_y, y_norm, param = getkdfit(conc, aniso_temp, fiteq, p0, units)
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, title, color, marker, line_style, plotname+str(plotcounter), filepath)
+			param, title, color, marker_size, marker, line_width, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
 			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0_norm, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, title+' (Normalized)', color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
+				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
+				line_style, plotname+str(plotcounter)+'_normalized', filepath)
 		plotcounter+=1
 	#deal with the rest of the samples if there are any leftovers. code is same as above.
 	if leftovers>0:
@@ -176,17 +177,17 @@ def multiplot(data, perplot, labels, units, fiteq, p0, normalization, title,
 			masterindex+=1
 		fits_x, fits_y, y_norm, param = getkdfit(conc, aniso_temp, fiteq, p0, units)
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, title, color, marker, line_style, plotname+str(plotcounter), filepath)
+			param, title, color, marker_size, marker, line_width, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
 			normfits_x, normfits_y, _, normparam = getkdfit(conc, y_norm, fiteq, p0_norm, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, title+' (Normalized)', color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
+				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
+				line_style, plotname+str(plotcounter)+'_normalized', filepath)
 #it was easier for me to just define separate functions for a quadratic fit
 def quad_singleplot(data, sample, labels, units, conc_L, fiteq, p0, normalization, 
-	title, color, marker, line_style, plotname, filepath):
+	title, color, marker_size, marker, line_width, line_style, plotname, filepath):
 	conc = []
 	aniso = [[]] #as above, the logplot function takes a list of lists
-	sample -= 1 #this is just to convert the sample number given in config to an index 
 	labels_temp = [labels[sample]]
 	#split up data into a list of concentrations and a list of anisotropy values
 	for i in range(len(data[0])):
@@ -196,16 +197,17 @@ def quad_singleplot(data, sample, labels, units, conc_L, fiteq, p0, normalizatio
 	fits_x, fits_y, y_norm, param = getquadfit(conc, aniso, conc_L, fiteq, p0, units)
 	#plot data as anisotropy
 	logplot(conc, aniso, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-		param, title, color, marker, line_style, plotname, filepath)
+		param, title, color, marker_size, marker, line_width, line_style, plotname, filepath)
 	#plot data as fraction bound
 	p0_norm = [20.0, 1.0, 0.0]
 	if normalization == 1:
 		normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0_norm, units)
 		logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-			normparam, title+' (Normalized)',color, marker, line_style, plotname+'_normalized', filepath)
+			normparam, title+' (Normalized)', color, marker_size, marker,
+			line_width, line_style, plotname+'_normalized', filepath)
 
 def quad_multiplot(data, perplot, labels, units, conc_L, fiteq, p0, normalization, 
-	title, color, marker, line_style, plotname, filepath):
+	title, color, marker_size, marker, line_width, line_style, plotname, filepath):
 	#fix sqrt with normalization
 	conc = []
 	aniso = []
@@ -235,11 +237,12 @@ def quad_multiplot(data, perplot, labels, units, conc_L, fiteq, p0, normalizatio
 		#fit and plot using the condensed sample list
 		fits_x, fits_y, y_norm, param = getquadfit(conc, aniso_temp, conc_L, fiteq, p0, units)
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, title, color, marker, line_style, plotname+str(plotcounter), filepath)
+			param, title, color, marker_size, marker, line_width, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
 			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0_norm, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, title+' (Normalized)',color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
+				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
+				line_style, plotname+str(plotcounter)+'_normalized', filepath)
 		plotcounter+=1
 	#deal with the rest of the samples if there are any leftovers. code is same as above.
 	if leftovers>0:
@@ -251,8 +254,9 @@ def quad_multiplot(data, perplot, labels, units, conc_L, fiteq, p0, normalizatio
 			masterindex+=1
 		fits_x, fits_y, y_norm, param = getquadfit(conc, aniso_temp, conc_L, fiteq, p0, units)
 		logplot(conc, aniso_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, title, color, marker, line_style, plotname+str(plotcounter), filepath)
+			param, title, color, marker_size, marker, line_width, line_style, plotname+str(plotcounter), filepath)
 		if normalization == 1:
 			normfits_x, normfits_y, _, normparam = getquadfit(conc, y_norm, conc_L, fiteq, p0_norm, units)
 			logplot(conc, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, title+' (Normalized)', color, marker, line_style, plotname+str(plotcounter)+'_normalized', filepath)
+				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
+				line_style, plotname+str(plotcounter)+'_normalized', filepath)
