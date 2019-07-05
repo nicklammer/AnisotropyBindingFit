@@ -69,6 +69,8 @@ single_choice = IntVar()
 duplicate = BooleanVar()
 fiteq_value = StringVar()
 normalization_value = BooleanVar()
+legend = BooleanVar()
+svg = BooleanVar()
 
 
 root.title("FA plotting configuration")
@@ -220,13 +222,21 @@ Label(tab2, text="Line width:").grid(row=8, column=2)
 line_width_box = Entry(tab2)
 line_width_box.grid(row=8, column=3, pady=2)
 
-Label(tab2, text="Plot title (for each plot):").grid(row=9, column=2)
-title_box = Entry(tab2)
-title_box.grid(row=9, column=3, pady=2)
+legend_check = Checkbutton(tab2, text="Show legend", 
+	variable=legend, onvalue=True, offvalue=False)
+legend_check.grid(row=9, column=2, columnspan=2)
 
-Label(tab2, text="File name for the plots:").grid(row=10, column=2)
+svg_check = Checkbutton(tab2, text="Save .svg files", 
+	variable=svg, onvalue=True, offvalue=False)
+svg_check.grid(row=10, column=2, columnspan=2)
+
+Label(tab2, text="Plot title (for each plot):").grid(row=11, column=2)
+title_box = Entry(tab2)
+title_box.grid(row=11, column=3, pady=2)
+
+Label(tab2, text="File name for the plots:").grid(row=12, column=2)
 plotname_box = Entry(tab2)
-plotname_box.grid(row=10, column=3, pady=2)
+plotname_box.grid(row=12, column=3, pady=2)
 
 #function for setting all values after loading a config file
 def value_set(thing, value):#for setting vars
@@ -264,6 +274,8 @@ def fill_values():
 	value_insert(marker_size_box, parser.get('plot options', 'marker size'))
 	value_insert(line_dd, parser.get('plot options', 'line style'))
 	value_insert(line_width_box, parser.get('plot options', 'line width'))
+	value_set(legend, parser.getboolean('plot options', 'legend'))
+	value_set(svg, parser.getboolean('plot options', 'svg'))
 	value_insert(title_box, parser.get('plot options', 'plot title'))
 	value_insert(plotname_box, parser.get('plot options', 'plot name'))
 
@@ -330,19 +342,28 @@ def save_everything():
 	config_set('plot options', 'marker size', marker_size_box.get())
 	config_set('plot options', 'line style', line_dd.get())
 	config_set('plot options', 'line width', line_width_box.get())
+	config_set('plot options', 'legend', str(legend.get()))
+	config_set('plot options', 'svg', str(svg.get()))
 	config_set('plot options', 'plot title', title_box.get().replace('%', '%%'))
 	config_set('plot options', 'plot name', plotname_box.get().replace('%', '%%'))
 
 	config_write(config_path)
 	config_write(config_load_box_path.get())
 	print("Saved")
+def save_config():
+	savedir = tkFileDialog.asksaveasfilename(title="Save config as", defaultextension='.ini',
+		filetypes=((".ini files","*.ini"),("All files", "*.*")))
+	save_everything()
+	config_write(savedir)
 
 button_frame = Frame(root)
 button_frame.grid(row=3, column=1)
 button_frame.grid_columnconfigure(0, weight=1)
 savebutton = Button(button_frame, text="Save", command=save_everything)
 savebutton.grid(row=3, column=0, padx=5, pady=5, sticky='w')
+saveconfigbutton = Button(button_frame, text="Save as", command=save_config)
+saveconfigbutton.grid(row=3, column=1, padx=5, pady=5, sticky='w')
 exitbutton = Button(button_frame, text="Exit", command=exit_client)
-exitbutton.grid(row=3, column=1, padx=5, pady=5, sticky='e')
+exitbutton.grid(row=3, column=2, padx=5, pady=5, sticky='e')
 
 root.mainloop()

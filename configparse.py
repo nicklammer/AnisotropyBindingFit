@@ -45,6 +45,8 @@ marker_chosen = parser.get('plot options', 'marker style')
 marker_size = parser.getfloat('plot options', 'marker size')
 line_chosen = parser.get('plot options', 'line style')
 line_width = parser.getfloat('plot options', 'line width')
+legend = parser.getboolean('plot options', 'legend')
+svg = parser.getboolean('plot options', 'svg')
 plottitle = parser.get('plot options', 'plot title')
 plotname = parser.get('plot options', 'plot name')
 
