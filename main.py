@@ -3,7 +3,8 @@ import read
 import plot
 
 def run():
-	file_raw = configparse.file_raw
+	raw_data = configparse.raw_data
+	file_sheet = configparse.file_sheet
 	path_output = configparse.path_output
 	file_anisotropy= path_output+'anisotropy.xls'
 	rows = configparse.rows
@@ -34,17 +35,22 @@ def run():
 	plotname = configparse.plotname
 	if single in (0, 1):
 		sample = [x-1 for x in sample]
-	#pick between a row layout or columns 
-	if rows == False:
-		FA = read.excel_open_colsamples(file_raw, titrations, start_row)
-	else:
-		FA = read.excel_open_rowsamples(file_raw, titrations, start_col)
 
-	#read data excel file, calculate anisotropy, and output in a formatted excel sheet
-	formatted = read.format(concentration, dilution_factor, single, sample, dupe, FA)
-	while len(formatted) > len(labels):
-			labels.append("No label")
-	read.data_write(formatted, labels, file_anisotropy)
+	if raw_data == True:
+		#pick between a row layout or columns 
+		if rows == False:
+			FA = read.excel_open_colsamples(file_sheet, titrations, start_row)
+		else:
+			FA = read.excel_open_rowsamples(file_sheet, titrations, start_col)
+		#calculate anisotropy and output in a formatted excel sheet
+		formatted = read.format(concentration, dilution_factor, single, sample, dupe, FA)
+		while len(formatted) > len(labels):
+				labels.append("No label")
+		read.data_write(formatted, labels, file_anisotropy)
+
+	else:
+		formatted = read.data_read(file_sheet, single, sample)
+	
 	#fit data to simplified binding isotherm
 	if fiteq == "kdfit":
 		if single == 0:
@@ -57,10 +63,10 @@ def run():
 	elif fiteq == "quad":
 		if single == 0:
 			plot.quad_singleplot(formatted,sample[0],labels,units,conc_L,plot.quad,p0,normalization,
-				plottitle, color_multiple,marker_size,marker,line_width,line_style,legend,svg,plotname,path_output)
+				plottitle,color_single,marker_size,marker,line_width,line_style,legend,svg,plotname,path_output)
 		else:
 			plot.quad_multiplot(formatted,perplot,labels,units,conc_L,plot.quad,p0,normalization,
-				plottitle, color_multiple,marker_size,marker,line_width,line_style,legend,svg,plotname,path_output)
+				plottitle,color_multiple,marker_size,marker,line_width,line_style,legend,svg,plotname,path_output)
 
 	print ("data is cool")
 

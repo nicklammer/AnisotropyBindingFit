@@ -130,4 +130,24 @@ def data_write(xypairs, labels, filepath_new):
 
 	wb.save(filepath_new)
 
+#function for reading a sheet that has concentration and anisotropy/fraction bound
+def data_read(file, single, sample):
+	wb = xlrd.open_workbook(file)
+	sheet = wb.sheet_by_index(0)
+	concentration = []
+	holder = []
+	combined = []
+	for i in range(sheet.nrows-1):
+		concentration.append(float(sheet.cell_value(i+1, 0)))
+	for n in range(sheet.ncols-1):
+		for i in range(sheet.nrows-1):
+			holder.append(float(sheet.cell_value(i+1, n+1)))
+		combined.append(zip(concentration, holder))
+		holder = []
+	if single in (0, 1):
+		for x in sample:
+			holder.append(combined[x])
+		combined = holder
+	return combined
+
 

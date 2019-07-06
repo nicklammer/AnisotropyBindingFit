@@ -34,6 +34,26 @@ def browse_dir():
 	global folder_path
 	dirname = tkFileDialog.askdirectory()
 	folder_path.set(dirname+'/')
+def raw_data_true():
+	row.config(state='enabled')
+	column.config(state='enabled')
+	titrations_box.config(state='enabled')
+	if rc_choice.get() == False:
+		start_row_box.config(state='enabled')
+	if rc_choice.get() == True:
+		start_col_box.config(state='enabled')
+	max_conc_box.config(state='enabled')
+	dilution_box.config(state='enabled')
+	duplicate_check.config(state='enabled')
+def raw_data_false():
+	row.config(state='disabled')
+	column.config(state='disabled')
+	titrations_box.config(state='disabled')
+	start_col_box.config(state='disabled')
+	start_row_box.config(state='disabled')
+	max_conc_box.config(state='disabled')
+	dilution_box.config(state='disabled')
+	duplicate_check.config(state='disabled')
 def rc_rows():
 	start_col_box.config(state='enabled')
 	start_row_box.config(state='disabled')
@@ -62,6 +82,7 @@ def addcolor(event):
 	color_multiple_box.insert('end', color_multiple_dd.get()+', ')
 
 #set all the vars to be used
+raw_data = BooleanVar()
 sheet_path = StringVar()
 folder_path = StringVar()
 rc_choice = BooleanVar()
@@ -113,58 +134,64 @@ data_box.grid(row=0, column=1, sticky='ew')
 data_browse = Button(tab1, text="Browse", command=browse_sheet)
 data_browse.grid(row=0, column=2, sticky='w')
 
-Label(tab1, text="Output folder").grid(row=1, sticky='w', padx=10)
+Label(tab1, text="Raw data or pre-formatted?").grid(row=1)
+raw = Radiobutton(tab1, text="Raw", variable=raw_data, value=True, command=raw_data_true)
+formatted = Radiobutton(tab1, text="Pre-formatted", variable=raw_data, value=False, command=raw_data_false)
+raw.grid(row=2)
+formatted.grid(row=2, column=1, sticky='w')
+
+Label(tab1, text="Output folder").grid(row=3, sticky='w', padx=10)
 output_box = Entry(tab1, textvariable=folder_path)
-output_box.grid(row=1, column=1, sticky='ew')
+output_box.grid(row=3, column=1, sticky='ew')
 output_browse = Button(tab1, text="Browse", command=browse_dir)
-output_browse.grid(row=1, column=2, sticky='w')
+output_browse.grid(row=3, column=2, sticky='w')
 
 #Titration info
-Label(tab1, text="Titrations done per row or column?").grid(row=3)
+Label(tab1, text="Titrations done per row or column?").grid(row=4)
 row = Radiobutton(tab1, text="Row", variable=rc_choice, value=True, command=rc_rows)
 column = Radiobutton(tab1, text="Column", variable=rc_choice, value=False, command=rc_cols)
-row.grid(row=4)
-column.grid(row=4, column=1, sticky='w')
+row.grid(row=5)
+column.grid(row=5, column=1, sticky='w')
 
-Label(tab1, text="Number of titrations and starting column or row:").grid(row=5)
-Label(tab1, text="Titrations:").grid(row=6)
+Label(tab1, text="Number of titrations and starting column or row:").grid(row=6)
+Label(tab1, text="Titrations:").grid(row=7)
 titrations_box = Entry(tab1)
-titrations_box.grid(row=6, column=1, sticky='w', pady=2)
-Label(tab1, text="Starting column:").grid(row=7)
+titrations_box.grid(row=7, column=1, sticky='w', pady=2)
+Label(tab1, text="Starting column:").grid(row=8)
 start_col_box = Entry(tab1)
-start_col_box.grid(row=7, column=1, sticky='w', pady=2)
-Label(tab1, text="Starting row:").grid(row=8)
+start_col_box.grid(row=8, column=1, sticky='w', pady=2)
+Label(tab1, text="Starting row:").grid(row=9)
 start_row_box = Entry(tab1)
-start_row_box.grid(row=8, column=1, sticky='w', pady=2)
+start_row_box.grid(row=9, column=1, sticky='w', pady=2)
 
-Label(tab1, text="Maximum protein concentration, dilution factor, and units:").grid(row=9)
-Label(tab1, text="Max concentration:").grid(row=10)
+Label(tab1, text="Maximum protein concentration, dilution factor, and units:").grid(row=10)
+Label(tab1, text="Max concentration:").grid(row=11)
 max_conc_box = Entry(tab1)
-max_conc_box.grid(row=10, column=1, sticky='w', pady=2)
-Label(tab1, text="Dilution factor (if 1:2 dilutions, would enter 2):").grid(row=11)
+max_conc_box.grid(row=11, column=1, sticky='w', pady=2)
+Label(tab1, text="Dilution factor (if 1:2 dilutions, would enter 2):").grid(row=12)
 dilution_box = Entry(tab1)
-dilution_box.grid(row=11, column=1, sticky='w', pady=2)
-Label(tab1, text="Units:").grid(row=12)
+dilution_box.grid(row=12, column=1, sticky='w', pady=2)
+Label(tab1, text="Units:").grid(row=13)
 units_box = Entry(tab1)
-units_box.grid(row=12, column=1, sticky='w', pady=2)
+units_box.grid(row=13, column=1, sticky='w', pady=2)
 
-Label(tab1, text="Single sample or multiple?").grid(row=13)
+Label(tab1, text="Single sample or multiple?").grid(row=14)
 single_button = Radiobutton(tab1, text="Single", variable=single_choice, value=0, command=sample_single)
 multiple_button = Radiobutton(tab1, text="Multiple", variable=single_choice, value=1, command=sample_multiple)
 all_button = Radiobutton(tab1, text="All", variable=single_choice, value=2, command=sample_all)
-single_button.grid(row=14)
-multiple_button.grid(row=14, column=1, sticky='w')
-all_button.grid(row=14, column=1)
-Label(tab1, text="If single or multiple, which sample(s)?\n(Number of the sample(s) in order)").grid(row=15)
+single_button.grid(row=15)
+multiple_button.grid(row=15, column=1, sticky='w')
+all_button.grid(row=15, column=1)
+Label(tab1, text="If single or multiple, which sample(s)?\n(Number of the sample(s) in order)").grid(row=16)
 sample_box = Entry(tab1)
-sample_box.grid(row=15, column=1, sticky='w', pady=2)
+sample_box.grid(row=16, column=1, sticky='w', pady=2)
 
-Label(tab1, text="Sample labels\n(Enter names in order separated by a comma and space)").grid(row=16)
+Label(tab1, text="Sample labels\n(Enter names in order separated by a comma and space)").grid(row=17)
 label_box = Text(tab1, height=2, width=40, borderwidth=2)
-label_box.grid(row=16, column=1, sticky='w', pady=5)
+label_box.grid(row=17, column=1, sticky='w', pady=5)
 duplicate_check = Checkbutton(tab1, text="Samples done in duplicate", 
 	variable=duplicate, onvalue=True, offvalue=False)
-duplicate_check.grid(row=17)
+duplicate_check.grid(row=18)
 
 #Plotting and fitting options
 Label(tab2, text="Choose type of fit:").grid(row=0)
@@ -201,7 +228,7 @@ color_single_dd.grid(row=2, column=3)
 
 Label(tab2, text="Colors for multiple samples").grid(row=3, column=2)
 color_multiple_dd = Combobox(tab2, values=colors_key)
-color_multiple_dd.grid(row=3, column=3)
+color_multiple_dd.grid(row=3, column=3, pady=3)
 color_multiple_dd.bind("<<ComboboxSelected>>", addcolor)
 color_multiple_box = Text(tab2, height=2, width=40, borderwidth=2)
 color_multiple_box.grid(row=4, column=2, columnspan=2, padx=20, pady=3)
@@ -248,7 +275,8 @@ def value_text_insert(box, value):#for text widgets
 	box.delete('1.0', 'end')
 	box.insert('end', value)
 def fill_values():
-	value_set(sheet_path, parser.get('file options', 'file raw'))
+	value_set(raw_data, parser.getboolean('file options', 'raw data'))
+	value_set(sheet_path, parser.get('file options', 'sheet file'))
 	value_set(folder_path, parser.get('file options', 'output folder'))
 	value_set(rc_choice, parser.getboolean('sample layout', 'rows'))
 	value_insert(titrations_box, parser.getint('sample layout', 'titrations'))
@@ -280,10 +308,20 @@ def fill_values():
 	value_insert(plotname_box, parser.get('plot options', 'plot name'))
 
 def default_disable():
-	if rc_choice.get() == False:
+	if raw_data.get() == False:
+		row.config(state='disabled')
+		column.config(state='disabled')
+		titrations_box.config(state='disabled')
 		start_col_box.config(state='disabled')
-	if rc_choice.get() == True:
 		start_row_box.config(state='disabled')
+		max_conc_box.config(state='disabled')
+		dilution_box.config(state='disabled')
+		duplicate_check.config(state='disabled')
+	else:
+		if rc_choice.get() == False:
+			start_col_box.config(state='disabled')
+		if rc_choice.get() == True:
+			start_row_box.config(state='disabled')
 	if single_choice.get() == 2:
 		sample_box.config(state='disabled')
 	if single_choice.get() == 0:
@@ -293,10 +331,12 @@ def default_disable():
 	if single_choice.get() in (1, 2):
 		color_single_dd.config(state='disabled')
 def default_enable():
-	if rc_choice.get() == False:
-		start_row_box.config(state='enabled')
-	if rc_choice.get() == True:
-		start_col_box.config(state='enabled')
+	if raw_data.get() == True:
+		if rc_choice.get() == False:
+			start_row_box.config(state='enabled')
+		if rc_choice.get() == True:
+			start_col_box.config(state='enabled')
+		duplicate_check.config(state='enabled')
 	if single_choice.get() in (0, 1):
 		sample_box.config(state='enabled')
 	if single_choice.get() in (1, 2):
@@ -316,7 +356,8 @@ def config_write(file):
 	configfile = open(file, 'w')
 	parser.write(configfile)
 def save_everything():
-	config_set('file options', 'file raw', data_box.get())
+	config_set('file options', 'raw data', str(raw_data.get()))
+	config_set('file options', 'sheet file', data_box.get())
 	config_set('file options', 'output folder', output_box.get())
 	config_set('sample layout', 'rows', str(rc_choice.get()))
 	config_set('sample layout', 'titrations', titrations_box.get())
@@ -328,7 +369,7 @@ def save_everything():
 	config_set('sample layout', 'duplicates', str(duplicate.get()))
 	config_set('sample layout', 'single', str(single_choice.get()))
 	config_set('sample layout', 'sample', sample_box.get())
-	config_set('sample layout', 'labels', label_box.get('1.0', 'end').replace('%','%%'))
+	config_set('sample layout', 'labels', label_box.get('1.0', 'end').replace('%','%%').strip('\n'))
 	config_set('fit options', 'fiteq', fiteq_value.get())
 	config_set('fit options', 'ligand concentration', conc_L_box.get())
 	config_set('fit options', 'Kdi', kd_box.get())
@@ -337,7 +378,7 @@ def save_everything():
 	config_set('fit options', 'normalization', str(normalization_value.get()))
 	config_set('plot options', 'per plot', perplot_box.get())
 	config_set('plot options', 'color single', color_single_dd.get())
-	config_set('plot options', 'color multiple', color_multiple_box.get('1.0', 'end'))
+	config_set('plot options', 'color multiple', color_multiple_box.get('1.0', 'end').strip('\n'))
 	config_set('plot options', 'marker style', marker_dd.get())
 	config_set('plot options', 'marker size', marker_size_box.get())
 	config_set('plot options', 'line style', line_dd.get())

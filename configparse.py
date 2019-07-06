@@ -11,7 +11,8 @@ parser.read(config_path)
 parsestyle.read(style_path)
 
 #file options
-file_raw = parser.get('file options', 'file raw')
+raw_data = parser.getboolean('file options', 'raw data')
+file_sheet = parser.get('file options', 'sheet file')
 path_output = parser.get('file options', 'output folder')
 #sample layout
 rows = parser.getboolean('sample layout', 'rows')

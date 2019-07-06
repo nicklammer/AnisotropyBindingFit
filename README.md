@@ -5,7 +5,9 @@ I wrote this for python 2.7.16. In python 3 they replaced basestring with str (s
 
 Requires xlrd, xlwt, and xlutils for using excel spreadsheets; scipy, numpy, and matplotlib for fitting and plotting.
 
-Currently only reads a specific format for the raw data (microplate view, parallel and perpendicular intensities separated)
+Currently only reads a specific format for the raw data (microplate view, parallel and perpendicular intensities separated).
+
+Now reads a pre-formatted data sheet as well. This can be anisotropy or fraction bound. Must be an excel sheet and data should be in the first sheet. Data need to be in the following format: first row as a header (no data), rest data, first column should be concentration, the others are for samples. 
 
 To use:
 	Edit config.ini with a text editor. Use %% instead of % in names/labels to avoid interpolation errors.

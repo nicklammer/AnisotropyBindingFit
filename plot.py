@@ -110,7 +110,7 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 			legendicons.append(mlines.Line2D([],[],color=color[i], marker=marker,
 				linestyle=line_style, label=labels[i]))
 	if legend == True:
-		ax1.legend(legendicons, labels, fontsize=12)
+		ax1.legend(legendicons, labels, fontsize=12, loc='upper left')
 	#save as png for quick viewing, svg for further editing
 	plt.savefig(filepath+plotname+'.png')
 	if svg == True:
@@ -121,12 +121,12 @@ def singleplot(data, sample, labels, units, fiteq, p0, normalization, title,
 	color, marker_size, marker, line_width, line_style, legend, svg, plotname, filepath):
 	conc = []
 	aniso = [[]] #as above, the logplot function takes a list of lists
-	labels_temp = [labels[sample]]
+	labels_temp = [labels[0]]
 	#split up data into a list of concentrations and a list of anisotropy values
 	for i in range(len(data[0])):
 		conc.append(data[0][i][0])
-	for i in range(len(data[sample])):
-		aniso[0].append(data[sample][i][1])
+	for i in range(len(data[0])):
+		aniso[0].append(data[0][i][1])
 	p0_norm = [20.0, 1.0, 0.0]
 	fits_x, fits_y, y_norm, param = getkdfit(conc, aniso, fiteq, p0, units)
 	#plot data as anisotropy
@@ -197,12 +197,12 @@ def quad_singleplot(data, sample, labels, units, conc_L, fiteq, p0, normalizatio
 	title, color, marker_size, marker, line_width, line_style, legend, svg, plotname, filepath):
 	conc = []
 	aniso = [[]] #as above, the logplot function takes a list of lists
-	labels_temp = [labels[sample]]
+	labels_temp = [labels[0]]
 	#split up data into a list of concentrations and a list of anisotropy values
 	for i in range(len(data[0])):
 		conc.append(data[0][i][0])
-	for i in range(len(data[sample])):
-		aniso[0].append(data[sample][i][1])
+	for i in range(len(data[0])):
+		aniso[0].append(data[0][i][1])
 	fits_x, fits_y, y_norm, param = getquadfit(conc, aniso, conc_L, fiteq, p0, units)
 	#plot data as anisotropy
 	logplot(conc, aniso, labels_temp, units, 'Anisotropy', fits_x, fits_y,
