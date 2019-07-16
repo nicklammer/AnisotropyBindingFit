@@ -16,16 +16,15 @@ file_sheet = parser.get('file options', 'sheet file')
 path_output = parser.get('file options', 'output folder')
 #sample layout
 rows = parser.getboolean('sample layout', 'rows')
-titrations = parser.getint('sample layout', 'titrations')
-start_col = parser.getint('sample layout', 'starting column') 
-start_row = parser.getint('sample layout', 'starting row')
-concentration = parser.getfloat('sample layout', 'max concentration')
-dilution_factor = parser.getfloat('sample layout', 'dilution factor')
+concentrations = parser.get('sample layout', 'concentrations').split(', ')
+concentrations = [float(n) for n in concentrations]
+dilution_factors = parser.get('sample layout', 'dilution factors').split(', ')
+dilution_factors = [float(n) for n in dilution_factors]
+titrations = parser.get('sample layout', 'titrations').split(', ')
+titrations = [int(n) for n in titrations]
+samples = parser.get('sample layout', 'samples').split(': ')
 units = parser.get('sample layout', 'units')
 dupe = parser.getboolean('sample layout', 'duplicates')
-single = parser.getint('sample layout', 'single')
-sample_temp = parser.get('sample layout', 'sample')
-sample = [int(x) for x in sample_temp.split(', ')]
 labels_temp = parser.get('sample layout', 'labels')
 labels = labels_temp.split(', ')
 #fit options
@@ -38,30 +37,30 @@ p0 = [Kdi, Si, Oi]
 normalization = parser.getboolean('fit options', 'normalization')
 #plot options
 perplot = parser.getint('plot options', 'per plot')
-color_single_key = parser.get('plot options', 'color single')
 #strip is a work around for the gui editor. I can't get it to work there
-color_multiple_key_temp = parser.get('plot options', 'color multiple').strip(", ")
-color_multiple_key = color_multiple_key_temp.split(', ')
+colors_key_temp = parser.get('plot options', 'colors').strip(", ")
+colors_key = colors_key_temp.split(', ')
 marker_chosen = parser.get('plot options', 'marker style')
 marker_size = parser.getfloat('plot options', 'marker size')
 line_chosen = parser.get('plot options', 'line style')
 line_width = parser.getfloat('plot options', 'line width')
 legend = parser.getboolean('plot options', 'legend')
+png = parser.getboolean('plot options', 'png')
 svg = parser.getboolean('plot options', 'svg')
 plottitle = parser.get('plot options', 'plot title')
 plotname = parser.get('plot options', 'plot name')
+showplot = parser.getboolean('plot options', 'show plot')
 
 #make the color dictionary, pull values for colors saved to the config as keys
-colors_key_temp = parsestyle.get('colors', 'colors_key')
-colors_value_temp = parsestyle.get('colors', 'colors_value')
-colors_key = colors_key_temp.split(', ')
-colors_value = colors_value_temp.split(', ')
-colors_dict = dict(zip(colors_key, colors_value))
+colors_key_temp_fordict = parsestyle.get('colors', 'colors_key')
+colors_value_temp_fordict = parsestyle.get('colors', 'colors_value')
+colors_key_fordict = colors_key_temp_fordict.split(', ')
+colors_value_fordict = colors_value_temp_fordict.split(', ')
+colors_dict = dict(zip(colors_key_fordict, colors_value_fordict))
 
-color_single = colors_dict[color_single_key]
-color_multiple = []
-for key in color_multiple_key:
-	color_multiple.append(colors_dict[key])
+colors = []
+for key in colors_key:
+	colors.append(colors_dict[key])
 
 #marker style dictionary
 marker_key_temp = parsestyle.get('marker', 'marker_key')

@@ -5,8 +5,8 @@ import configparse
 import os
 from ConfigParser import SafeConfigParser
 
-#import style keys from plot_style.ini throuhg configparse
-colors_key = configparse.colors_key
+#import style keys from plot_style.ini through configparse
+colors_key = configparse.colors_key_fordict
 marker_key = configparse.marker_key
 line_key = configparse.line_key
 
@@ -38,10 +38,6 @@ def raw_data_true():
 	row.config(state='enabled')
 	column.config(state='enabled')
 	titrations_box.config(state='enabled')
-	if rc_choice.get() == False:
-		start_row_box.config(state='enabled')
-	if rc_choice.get() == True:
-		start_col_box.config(state='enabled')
 	max_conc_box.config(state='enabled')
 	dilution_box.config(state='enabled')
 	duplicate_check.config(state='enabled')
@@ -49,49 +45,24 @@ def raw_data_false():
 	row.config(state='disabled')
 	column.config(state='disabled')
 	titrations_box.config(state='disabled')
-	start_col_box.config(state='disabled')
-	start_row_box.config(state='disabled')
 	max_conc_box.config(state='disabled')
 	dilution_box.config(state='disabled')
 	duplicate_check.config(state='disabled')
-def rc_rows():
-	start_col_box.config(state='enabled')
-	start_row_box.config(state='disabled')
-def rc_cols():
-	start_col_box.config(state='disabled')
-	start_row_box.config(state='enabled')
-def sample_single():
-	sample_box.config(state='enabled')
-	color_single_dd.config(state='enabled')
-	perplot_box.config(state='disabled')
-	color_multiple_dd.config(state='disabled')
-	color_multiple_box.config(state='disabled')
-def sample_multiple():
-	sample_box.config(state='enabled')
-	color_single_dd.config(state='disabled')
-	perplot_box.config(state='enabled')
-	color_multiple_dd.config(state='enabled')
-	color_multiple_box.config(state='normal')
-def sample_all():
-	sample_box.config(state='disabled')
-	color_single_dd.config(state='disabled')
-	perplot_box.config(state='enabled')
-	color_multiple_dd.config(state='enabled')
-	color_multiple_box.config(state='normal')
 def addcolor(event):
-	color_multiple_box.insert('end', color_multiple_dd.get()+', ')
+	color_box.insert('end', color_dd.get()+', ')
 
 #set all the vars to be used
 raw_data = BooleanVar()
 sheet_path = StringVar()
 folder_path = StringVar()
 rc_choice = BooleanVar()
-single_choice = IntVar()
 duplicate = BooleanVar()
 fiteq_value = StringVar()
 normalization_value = BooleanVar()
 legend = BooleanVar()
+png = BooleanVar()
 svg = BooleanVar()
+showplot = BooleanVar()
 
 
 root.title("FA plotting configuration")
@@ -120,8 +91,10 @@ config_load_button.grid(row=0, column=2, sticky='nw')
 nb = Notebook(root)
 nb.grid(row=1, column=0, columnspan=2, sticky='nsew')
 tab1 = Frame(nb)
+tab_data = Frame(nb)
 tab2 = Frame(nb)
-nb.add(tab1, text="Data layout")
+nb.add(tab1, text="Data")
+nb.add(tab_data, text="Data cont.")
 nb.add(tab2, text="Plot and fit")
 nb.enable_traversal()
 
@@ -148,43 +121,14 @@ output_browse.grid(row=3, column=2, sticky='w')
 
 #Titration info
 Label(tab1, text="Titrations done per row or column?").grid(row=4)
-row = Radiobutton(tab1, text="Row", variable=rc_choice, value=True, command=rc_rows)
-column = Radiobutton(tab1, text="Column", variable=rc_choice, value=False, command=rc_cols)
+row = Radiobutton(tab1, text="Row", variable=rc_choice, value=True)
+column = Radiobutton(tab1, text="Column", variable=rc_choice, value=False)
 row.grid(row=5)
 column.grid(row=5, column=1, sticky='w')
 
-Label(tab1, text="Number of titrations and starting column or row:").grid(row=6)
-Label(tab1, text="Titrations:").grid(row=7)
-titrations_box = Entry(tab1)
-titrations_box.grid(row=7, column=1, sticky='w', pady=2)
-Label(tab1, text="Starting column:").grid(row=8)
-start_col_box = Entry(tab1)
-start_col_box.grid(row=8, column=1, sticky='w', pady=2)
-Label(tab1, text="Starting row:").grid(row=9)
-start_row_box = Entry(tab1)
-start_row_box.grid(row=9, column=1, sticky='w', pady=2)
-
-Label(tab1, text="Maximum protein concentration, dilution factor, and units:").grid(row=10)
-Label(tab1, text="Max concentration:").grid(row=11)
-max_conc_box = Entry(tab1)
-max_conc_box.grid(row=11, column=1, sticky='w', pady=2)
-Label(tab1, text="Dilution factor (if 1:2 dilutions, would enter 2):").grid(row=12)
-dilution_box = Entry(tab1)
-dilution_box.grid(row=12, column=1, sticky='w', pady=2)
 Label(tab1, text="Units:").grid(row=13)
 units_box = Entry(tab1)
 units_box.grid(row=13, column=1, sticky='w', pady=2)
-
-Label(tab1, text="Single sample or multiple?").grid(row=14)
-single_button = Radiobutton(tab1, text="Single", variable=single_choice, value=0, command=sample_single)
-multiple_button = Radiobutton(tab1, text="Multiple", variable=single_choice, value=1, command=sample_multiple)
-all_button = Radiobutton(tab1, text="All", variable=single_choice, value=2, command=sample_all)
-single_button.grid(row=15)
-multiple_button.grid(row=15, column=1, sticky='w')
-all_button.grid(row=15, column=1)
-Label(tab1, text="If single or multiple, which sample(s)?\n(Number of the sample(s) in order)").grid(row=16)
-sample_box = Entry(tab1)
-sample_box.grid(row=16, column=1, sticky='w', pady=2)
 
 Label(tab1, text="Sample labels\n(Enter names in order separated by a comma and space)").grid(row=17)
 label_box = Text(tab1, height=2, width=40, borderwidth=2)
@@ -192,6 +136,64 @@ label_box.grid(row=17, column=1, sticky='w', pady=5)
 duplicate_check = Checkbutton(tab1, text="Samples done in duplicate", 
 	variable=duplicate, onvalue=True, offvalue=False)
 duplicate_check.grid(row=18)
+
+#actual data layout
+Label(tab_data, text="Number of unique\nprotein dilutions").grid(row=0, column=0, padx=3, pady=5)
+unique_dilutions = Entry(tab_data, justify='center')
+unique_dilutions.grid(row=0, column=1)
+Label(tab_data, text="Starting\nconcentration", justify='center').grid(row=1, column=0)
+Label(tab_data, text="Dilution factor\n(1:2 is 2)", justify='center').grid(row=1, column=1)
+Label(tab_data, text="# of titrations", justify='center').grid(row=1, column=2)
+Label(tab_data, text="Starting row/column", justify='center').grid(row=1, column=3)
+Label(tab_data, text="Sample numbers", justify='center').grid(row=1, column=4)
+conc_boxes = []
+dilution_boxes = []
+titration_boxes = []
+sample_boxes = []
+def update_boxes():
+	#this is ugly, but it works
+	global unique_dilutions
+	global conc_boxes
+	global dilution_boxes
+	global titration_boxes
+	global sample_boxes
+	holder1 = []
+	holder2 = []
+	holder3 = []
+	holder5 = []
+	for i in range(len(conc_boxes)):
+		holder1.append(conc_boxes[i].get())
+		holder2.append(dilution_boxes[i].get())
+		holder3.append(titration_boxes[i].get())
+		holder5.append(sample_boxes[i].get())
+		conc_boxes[i].grid_forget()
+		dilution_boxes[i].grid_forget()
+		titration_boxes[i].grid_forget()
+		sample_boxes[i].grid_forget()
+	conc_boxes = []
+	dilution_boxes = []
+	titration_boxes = []
+	sample_boxes = []
+	while len(holder1) < int(unique_dilutions.get()):
+		holder1.append('')
+		holder2.append('')
+		holder3.append('')
+		holder5.append('')
+	for n in range(int(unique_dilutions.get())):
+		conc_boxes.append(Entry(tab_data, justify='center', width=8))
+		conc_boxes[n].grid(row=n+2, column=0, pady=2)
+		dilution_boxes.append(Entry(tab_data, justify='center', width=7))
+		dilution_boxes[n].grid(row=n+2, column=1, pady=2)
+		titration_boxes.append(Entry(tab_data, justify='center', width=7))
+		titration_boxes[n].grid(row=n+2, column=2, pady=2)
+		sample_boxes.append(Entry(tab_data, justify='center'))
+		sample_boxes[n].grid(row=n+2, column=4, pady=2)
+		conc_boxes[n].insert('end', holder1[n])
+		dilution_boxes[n].insert('end', holder2[n])
+		titration_boxes[n].insert('end', holder3[n])
+		sample_boxes[n].insert('end', holder5[n])
+updatebutton = Button(tab_data, text="Update boxes", command=update_boxes)
+updatebutton.grid(row=0, column=2, padx=5, pady=5)
 
 #Plotting and fitting options
 Label(tab2, text="Choose type of fit:").grid(row=0)
@@ -222,16 +224,12 @@ Label(tab2, text="Number of samples per plot:\n(Maximum of 6 or you can't read t
 perplot_box = Entry(tab2)
 perplot_box.grid(row=1, column=3)
 
-Label(tab2, text="Color for single sample").grid(row=2, column=2)
-color_single_dd = Combobox(tab2, values=colors_key)
-color_single_dd.grid(row=2, column=3)
-
-Label(tab2, text="Colors for multiple samples").grid(row=3, column=2)
-color_multiple_dd = Combobox(tab2, values=colors_key)
-color_multiple_dd.grid(row=3, column=3, pady=3)
-color_multiple_dd.bind("<<ComboboxSelected>>", addcolor)
-color_multiple_box = Text(tab2, height=2, width=40, borderwidth=2)
-color_multiple_box.grid(row=4, column=2, columnspan=2, padx=20, pady=3)
+Label(tab2, text="Colors for samples (in plotted order)").grid(row=3, column=2)
+color_dd = Combobox(tab2, values=colors_key)
+color_dd.grid(row=3, column=3, pady=3)
+color_dd.bind("<<ComboboxSelected>>", addcolor)
+color_box = Text(tab2, height=2, width=40, borderwidth=2)
+color_box.grid(row=4, column=2, columnspan=2, padx=20, pady=3)
 
 Label(tab2, text="Marker style:").grid(row=5, column=2)
 marker_dd = Combobox(tab2, values=marker_key)
@@ -253,17 +251,25 @@ legend_check = Checkbutton(tab2, text="Show legend",
 	variable=legend, onvalue=True, offvalue=False)
 legend_check.grid(row=9, column=2, columnspan=2)
 
+png_check = Checkbutton(tab2, text="Save .png files", 
+	variable=png, onvalue=True, offvalue=False)
+png_check.grid(row=10, column=2, columnspan=2)
+
 svg_check = Checkbutton(tab2, text="Save .svg files", 
 	variable=svg, onvalue=True, offvalue=False)
-svg_check.grid(row=10, column=2, columnspan=2)
+svg_check.grid(row=11, column=2, columnspan=2)
 
-Label(tab2, text="Plot title (for each plot):").grid(row=11, column=2)
+Label(tab2, text="Plot title (for each plot):").grid(row=12, column=2)
 title_box = Entry(tab2)
-title_box.grid(row=11, column=3, pady=2)
+title_box.grid(row=12, column=3, pady=2)
 
-Label(tab2, text="File name for the plots:").grid(row=12, column=2)
+Label(tab2, text="File name for the plots:").grid(row=13, column=2)
 plotname_box = Entry(tab2)
-plotname_box.grid(row=12, column=3, pady=2)
+plotname_box.grid(row=13, column=3, pady=2)
+
+show_check = Checkbutton(tab2, text="Show plots in a window", 
+	variable=showplot, onvalue=True, offvalue=False)
+show_check.grid(row=14, column=2, columnspan=2)
 
 #function for setting all values after loading a config file
 def value_set(thing, value):#for setting vars
@@ -279,15 +285,27 @@ def fill_values():
 	value_set(sheet_path, parser.get('file options', 'sheet file'))
 	value_set(folder_path, parser.get('file options', 'output folder'))
 	value_set(rc_choice, parser.getboolean('sample layout', 'rows'))
-	value_insert(titrations_box, parser.getint('sample layout', 'titrations'))
-	value_insert(start_col_box, parser.getint('sample layout', 'starting column'))
-	value_insert(start_row_box, parser.getint('sample layout', 'starting row'))
-	value_insert(max_conc_box, parser.getfloat('sample layout', 'max concentration'))
-	value_insert(dilution_box, parser.getfloat('sample layout', 'dilution factor'))
 	value_insert(units_box, parser.get('sample layout', 'units'))
-	value_set(single_choice, parser.getint('sample layout', 'single'))
-	value_insert(sample_box, parser.get('sample layout', 'sample'))
 	value_text_insert(label_box, parser.get('sample layout', 'labels'))
+	value_insert(unique_dilutions, parser.get('sample layout', 'unique dilutions'))
+	holder1 = parser.get('sample layout', 'concentrations').split(', ')
+	holder2 = parser.get('sample layout', 'dilution factors').split(', ')
+	holder3 = parser.get('sample layout', 'titrations').split(', ')
+	holder5 = parser.get('sample layout', 'samples').split(': ')
+	while len(holder1) < int(unique_dilutions.get()):
+		holder1.append('')
+	while len(holder2) < int(unique_dilutions.get()):
+		holder2.append('')
+	while len(holder3) < int(unique_dilutions.get()):
+		holder3.append('')
+	while len(holder5) < int(unique_dilutions.get()):
+		holder5.append('')
+	update_boxes()
+	for n in range(int(unique_dilutions.get())):
+		value_insert(conc_boxes[n], holder1[n])
+		value_insert(dilution_boxes[n], holder2[n])
+		value_insert(titration_boxes[n], holder3[n])
+		value_insert(sample_boxes[n], holder5[n])
 	value_set(duplicate, parser.getboolean('sample layout', 'duplicates'))
 	value_set(fiteq_value, parser.get('fit options', 'fiteq'))
 	value_insert(conc_L_box, parser.getfloat('fit options', 'ligand concentration'))
@@ -296,55 +314,29 @@ def fill_values():
 	value_insert(o_box, parser.getfloat('fit options', 'Oi'))
 	value_set(normalization_value, parser.getboolean('fit options', 'normalization'))
 	value_insert(perplot_box, parser.getint('plot options', 'per plot'))
-	value_insert(color_single_dd, parser.get('plot options', 'color single'))
-	value_text_insert(color_multiple_box, parser.get('plot options', 'color multiple').strip(", "))
+	value_text_insert(color_box, parser.get('plot options', 'colors').strip(", "))
 	value_insert(marker_dd, parser.get('plot options', 'marker style'))
 	value_insert(marker_size_box, parser.get('plot options', 'marker size'))
 	value_insert(line_dd, parser.get('plot options', 'line style'))
 	value_insert(line_width_box, parser.get('plot options', 'line width'))
 	value_set(legend, parser.getboolean('plot options', 'legend'))
+	value_set(png, parser.getboolean('plot options', 'png'))
 	value_set(svg, parser.getboolean('plot options', 'svg'))
 	value_insert(title_box, parser.get('plot options', 'plot title'))
 	value_insert(plotname_box, parser.get('plot options', 'plot name'))
+	value_set(showplot, parser.getboolean('plot options', 'show plot'))
 
 def default_disable():
 	if raw_data.get() == False:
 		row.config(state='disabled')
 		column.config(state='disabled')
 		titrations_box.config(state='disabled')
-		start_col_box.config(state='disabled')
-		start_row_box.config(state='disabled')
 		max_conc_box.config(state='disabled')
 		dilution_box.config(state='disabled')
 		duplicate_check.config(state='disabled')
-	else:
-		if rc_choice.get() == False:
-			start_col_box.config(state='disabled')
-		if rc_choice.get() == True:
-			start_row_box.config(state='disabled')
-	if single_choice.get() == 2:
-		sample_box.config(state='disabled')
-	if single_choice.get() == 0:
-		perplot_box.config(state='disabled')
-		color_multiple_dd.config(state='disabled')
-		color_multiple_box.config(state='disabled')
-	if single_choice.get() in (1, 2):
-		color_single_dd.config(state='disabled')
 def default_enable():
 	if raw_data.get() == True:
-		if rc_choice.get() == False:
-			start_row_box.config(state='enabled')
-		if rc_choice.get() == True:
-			start_col_box.config(state='enabled')
 		duplicate_check.config(state='enabled')
-	if single_choice.get() in (0, 1):
-		sample_box.config(state='enabled')
-	if single_choice.get() in (1, 2):
-		perplot_box.config(state='enabled')
-		color_multiple_dd.config(state='enabled')
-		color_multiple_box.config(state='normal')
-	if single_choice.get() == 0:
-		color_single_dd.config(state='enabled')
 
 fill_values()#fill in all the boxes
 default_disable()#start boxes disabled based on filled values
@@ -360,15 +352,22 @@ def save_everything():
 	config_set('file options', 'sheet file', data_box.get())
 	config_set('file options', 'output folder', output_box.get())
 	config_set('sample layout', 'rows', str(rc_choice.get()))
-	config_set('sample layout', 'titrations', titrations_box.get())
-	config_set('sample layout', 'starting column', start_col_box.get())
-	config_set('sample layout', 'starting row', start_row_box.get())
-	config_set('sample layout', 'max concentration', max_conc_box.get())
-	config_set('sample layout', 'dilution factor', dilution_box.get())
+	holder1 = []
+	holder2 = []
+	holder3 = []
+	holder5 = []
+	for i in range(len(conc_boxes)):
+		holder1.append(conc_boxes[i].get())
+		holder2.append(dilution_boxes[i].get())
+		holder3.append(titration_boxes[i].get())
+		holder5.append(sample_boxes[i].get())
+	config_set('sample layout', 'unique dilutions', unique_dilutions.get())
+	config_set('sample layout', 'concentrations', ', '.join(holder1))
+	config_set('sample layout', 'dilution factors', ', '.join(holder2))
+	config_set('sample layout', 'titrations', ', '.join(holder3))
+	config_set('sample layout', 'samples', ': '.join(holder5))
 	config_set('sample layout', 'units', units_box.get())
 	config_set('sample layout', 'duplicates', str(duplicate.get()))
-	config_set('sample layout', 'single', str(single_choice.get()))
-	config_set('sample layout', 'sample', sample_box.get())
 	config_set('sample layout', 'labels', label_box.get('1.0', 'end').replace('%','%%').strip('\n'))
 	config_set('fit options', 'fiteq', fiteq_value.get())
 	config_set('fit options', 'ligand concentration', conc_L_box.get())
@@ -377,16 +376,17 @@ def save_everything():
 	config_set('fit options', 'Oi', o_box.get())
 	config_set('fit options', 'normalization', str(normalization_value.get()))
 	config_set('plot options', 'per plot', perplot_box.get())
-	config_set('plot options', 'color single', color_single_dd.get())
-	config_set('plot options', 'color multiple', color_multiple_box.get('1.0', 'end').strip('\n'))
+	config_set('plot options', 'colors', color_box.get('1.0', 'end').strip('\n'))
 	config_set('plot options', 'marker style', marker_dd.get())
 	config_set('plot options', 'marker size', marker_size_box.get())
 	config_set('plot options', 'line style', line_dd.get())
 	config_set('plot options', 'line width', line_width_box.get())
 	config_set('plot options', 'legend', str(legend.get()))
+	config_set('plot options', 'png', str(png.get()))
 	config_set('plot options', 'svg', str(svg.get()))
 	config_set('plot options', 'plot title', title_box.get().replace('%', '%%'))
 	config_set('plot options', 'plot name', plotname_box.get().replace('%', '%%'))
+	config_set('plot options', 'show plot', str(showplot.get()))
 
 	config_write(config_path)
 	config_write(config_load_box_path.get())

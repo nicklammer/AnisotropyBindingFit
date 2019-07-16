@@ -6,67 +6,64 @@ def run():
 	raw_data = configparse.raw_data
 	file_sheet = configparse.file_sheet
 	path_output = configparse.path_output
-	file_anisotropy= path_output+'anisotropy.xls'
+	plotname = configparse.plotname
+	file_anisotropy= path_output+plotname+'_anisotropy.xls'
 	rows = configparse.rows
+	concentrations = configparse.concentrations
+	dilution_factors = configparse.dilution_factors
 	titrations = configparse.titrations
-	start_col = configparse.start_col
-	start_row = configparse.start_row
-	concentration = configparse.concentration
-	dilution_factor = configparse.dilution_factor
+	samples_temp = configparse.samples
 	units = configparse.units
 	dupe = configparse.dupe
-	single = configparse.single
-	sample = configparse.sample
 	labels = configparse.labels
 	fiteq = configparse.fiteq
 	conc_L = configparse.conc_L
 	p0 = configparse.p0
 	normalization = configparse.normalization
 	perplot = configparse.perplot
-	color_single = [configparse.color_single]
-	color_multiple = configparse.color_multiple
+	colors = configparse.colors
 	marker_size = configparse.marker_size
 	marker = configparse.marker
 	line_width = configparse.line_width
 	line_style = configparse.line_style
 	legend = configparse.legend
+	png = configparse.png
 	svg = configparse.svg
 	plottitle = configparse.plottitle
-	plotname = configparse.plotname
-	if single in (0, 1):
-		sample = [x-1 for x in sample]
+	showplot = configparse.showplot
+	#make sample list usable
+	samples_split = []
+	samples = []
+	for x in samples_temp:
+		samples_split.append(x.split(', '))
+	for x in samples_split:
+		samples.append([int(n) for n in x])
 
 	if raw_data == True:
 		#pick between a row layout or columns 
 		if rows == False:
-			FA = read.excel_open_colsamples(file_sheet, titrations, start_row)
+			parallel, perpendicular = read.excel_open_colsamples(file_sheet)
 		else:
-			FA = read.excel_open_rowsamples(file_sheet, titrations, start_col)
+			parallel, perpendicular = read.excel_open_rowsamples(file_sheet)
 		#calculate anisotropy and output in a formatted excel sheet
-		formatted = read.format(concentration, dilution_factor, single, sample, dupe, FA)
-		while len(formatted) > len(labels):
+		conc_all, anisos = read.format(parallel, perpendicular, concentrations, dilution_factors, titrations, samples, dupe)
+		while len(anisos) > len(labels):
 				labels.append("No label")
-		read.data_write(formatted, labels, file_anisotropy)
+		read.data_write(conc_all, anisos, labels, file_anisotropy)
 
 	else:
-		formatted = read.data_read(file_sheet, single, sample)
-	
+		conc_all, anisos = read.data_read(file_sheet)
+
 	#fit data to simplified binding isotherm
 	if fiteq == "kdfit":
-		if single == 0:
-			plot.singleplot(formatted,sample[0],labels,units,plot.kdfit,p0,normalization,
-				plottitle,color_single,marker_size,marker,line_width,line_style,legend,svg,plotname,path_output)
-		else:
-			plot.multiplot(formatted,perplot,labels,units,plot.kdfit,p0,normalization,
-				plottitle, color_multiple,marker_size,marker,line_width,line_style,legend,svg,plotname,path_output)
+		plot.allplot(conc_all,anisos,perplot,labels,units,plot.kdfit,p0,normalization,
+			plottitle,colors,marker_size,marker,line_width,line_style,legend,
+			png,svg,plotname,path_output,showplot)
 	#quadratic fitting
 	elif fiteq == "quad":
-		if single == 0:
-			plot.quad_singleplot(formatted,sample[0],labels,units,conc_L,plot.quad,p0,normalization,
-				plottitle,color_single,marker_size,marker,line_width,line_style,legend,svg,plotname,path_output)
-		else:
-			plot.quad_multiplot(formatted,perplot,labels,units,conc_L,plot.quad,p0,normalization,
-				plottitle,color_multiple,marker_size,marker,line_width,line_style,legend,svg,plotname,path_output)
+		plot.quad_allplot(conc_all,anisos,perplot,labels,units,conc_L,plot.quad,p0,normalization,
+			plottitle,colors,marker_size,marker,line_width,line_style,legend,
+			png,svg,plotname,path_output,showplot)
 
 	print ("data is cool")
 
