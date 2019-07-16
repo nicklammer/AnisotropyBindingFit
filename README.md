@@ -1,6 +1,8 @@
 # AnisotropyBindingFit
 ### Scripts for fitting raw fluorescence anisotropy data for binding experiments.
 
+https://github.com/nicklammer/AnisotropyBindingFit
+
 I wrote this for python 2.7.16. In python 3 they replaced basestring with str (see read.py). If you use python 3, just change every instance of basestring into str. All prints were written to work on 3. The gui (Tkinter) may be different for 3 as well.
 
 #### Requirements:
