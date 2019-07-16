@@ -4,15 +4,14 @@
 I wrote this for python 2.7.16. In python 3 they replaced basestring with str (see read.py). If you use python 3, just change every instance of basestring into str. All prints were written to work on 3. The gui (Tkinter) may be different for 3 as well.
 
 #### Requirements:
--xlrd, xlwt, and xlutils for using excel spreadsheets
--scipy, numpy, and matplotlib for fitting and plotting.
+	-xlrd, xlwt, and xlutils for using excel spreadsheets
+	-scipy, numpy, and matplotlib for fitting and plotting.
 
 #### Use
-Currently only reads a specific format for the raw data (microplate view, parallel and perpendicular intensities separated).
-
-Also reads a pre-formatted data sheet as well. This can be anisotropy or fraction bound.
--Must be an excel sheet and data should be in the first sheet. 
--Data need to be in the following format: first row as a header (no data), rest data. Each sample should be 2 columns with concentration on the left and anisotropy/fraction bound on the right (x, y). 
+	Currently only reads a specific format for the raw data (microplate view, parallel and perpendicular intensities separated).
+	Also reads a pre-formatted data sheet as well. This can be anisotropy or fraction bound:
+		-Must be an excel sheet and data should be in the first sheet. 
+		-Data need to be in the following format: first row as a header (no data), rest data. Each sample should be 2 columns with concentration on the left and anisotropy/fraction bound on the right (x, y). 
 
 ##### To use:
 	-Run the gui editor with python2. You can also edit the config.ini directly in a text editor. If you do this, use %% instead of % in names/labels to avoid interpolation errors.
@@ -47,6 +46,6 @@ Also reads a pre-formatted data sheet as well. This can be anisotropy or fractio
 	-plot.py contains the fitting equations, general log plotting function, and functions for sorting data into the right number of plots.
 	-main.py imports from configparse.py, cleans up some variables, and sends data to other scripts.
 
-The read script can be edited to use different data formats as long as it goes to the plotting script in the correct format:
-	-A list of the concentrations for each sample (x-values) and a list of the anisotropies for each sample (y-values). Each list should be a list of lists, with each interior list being a sample.
-	-x and y lists need to both be ordered by sample so they match up.
+	The read script can be edited to use different data formats as long as it goes to the plotting script in the correct format:
+		-A list of the concentrations for each sample (x-values) and a list of the anisotropies for each sample (y-values). Each list should be a list of lists, with each interior list being a sample.
+		-x and y lists need to both be ordered by sample so they match up.
