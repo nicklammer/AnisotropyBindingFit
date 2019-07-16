@@ -22,7 +22,7 @@ To use:
 	-If nothing in here helps, contact Nick (nila7826@colorado.edu).
 
 Things to keep in mind so the scripts work:
-	-Samples are seen by the script as 1, 2, 3,.... The order is from A-P if titrations were done in a row or 1-24 if done in a column. Spaces do not matter, everything is condensed. If you have duplicates it works the same way, but think of the rows/columns as being condensed (sample 1 = A, B; sample 2 = C, D).
+	-Samples are seen by the script as 1, 2, 3,.... The order is from A-P if titrations were done in a row or 1-24 if done in a column. Spaces do not matter, everything is condensed. If you have duplicates it works the same way, but think of the rows/columns as being condensed (sample 1 = A, B; sample 2 = C, D).\n
 	-Labels also go in order of the samples.
 	-Samples are plotted in the order described above. If you want certain samples plotted together, then either rearrange the raw data sheet to put them next to each other or rearrange the sheet that the script gives you with calculated anisotropies.
 	-Duplicates need to have their data side-by-side (sample 1 = A, B; not A, C, for example). If they were not read that way, then you can rearrange the sheet to fix this.
@@ -39,7 +39,6 @@ The read script can be edited to use different data formats as long as it goes t
 
 Common errors and possible reasons:
 	-If you get a "list index out of range" it's likely that a field does not have enough values or has too many. Check that your samples, labels, colors, etc. match up in terms of size.
-
 	-If you can't open the config gui, it's possible that fields in your config do not have their values separated properly. In most cases, they need to be separated by a comma and a space (", "). In the case of samples, each sample set is separated by colon and space (": ") and the samples themselves by comma-space. To fix the issue, you will have to open the config.ini in a text editor and fix the problem values.
 
 Function of each script:
