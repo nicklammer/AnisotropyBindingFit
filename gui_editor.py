@@ -37,17 +37,25 @@ def browse_dir():
 def raw_data_true():
 	row.config(state='enabled')
 	column.config(state='enabled')
-	titrations_box.config(state='enabled')
-	max_conc_box.config(state='enabled')
-	dilution_box.config(state='enabled')
 	duplicate_check.config(state='enabled')
+	unique_dilutions.config(state='enabled')
+	updatebutton.config(state='enabled')
+	for i in range(int(unique_dilutions.get())):
+		conc_boxes[i].config(state='enabled')
+		dilution_boxes[i].config(state='enabled')
+		titration_boxes[i].config(state='enabled')
+		sample_boxes[i].config(state='enabled')
 def raw_data_false():
 	row.config(state='disabled')
 	column.config(state='disabled')
-	titrations_box.config(state='disabled')
-	max_conc_box.config(state='disabled')
-	dilution_box.config(state='disabled')
 	duplicate_check.config(state='disabled')
+	unique_dilutions.config(state='disabled')
+	updatebutton.config(state='disabled')
+	for i in range(int(unique_dilutions.get())):
+		conc_boxes[i].config(state='disabled')
+		dilution_boxes[i].config(state='disabled')
+		titration_boxes[i].config(state='disabled')
+		sample_boxes[i].config(state='disabled')
 def addcolor(event):
 	color_box.insert('end', color_dd.get()+', ')
 
@@ -130,7 +138,7 @@ Label(tab1, text="Units:").grid(row=13)
 units_box = Entry(tab1)
 units_box.grid(row=13, column=1, sticky='w', pady=2)
 
-Label(tab1, text="Sample labels\n(Enter names in order separated by a comma and space)").grid(row=17)
+Label(tab1, text="Sample labels\n(Enter names in order\nseparated by a comma and space)", justify='center').grid(row=17, padx=6)
 label_box = Text(tab1, height=2, width=40, borderwidth=2)
 label_box.grid(row=17, column=1, sticky='w', pady=5)
 duplicate_check = Checkbutton(tab1, text="Samples done in duplicate", 
@@ -139,12 +147,11 @@ duplicate_check.grid(row=18)
 
 #actual data layout
 Label(tab_data, text="Number of unique\nprotein dilutions").grid(row=0, column=0, padx=3, pady=5)
-unique_dilutions = Entry(tab_data, justify='center')
+unique_dilutions = Entry(tab_data, justify='center', width=7)
 unique_dilutions.grid(row=0, column=1)
 Label(tab_data, text="Starting\nconcentration", justify='center').grid(row=1, column=0)
 Label(tab_data, text="Dilution factor\n(1:2 is 2)", justify='center').grid(row=1, column=1)
 Label(tab_data, text="# of titrations", justify='center').grid(row=1, column=2)
-Label(tab_data, text="Starting row/column", justify='center').grid(row=1, column=3)
 Label(tab_data, text="Sample numbers", justify='center').grid(row=1, column=4)
 conc_boxes = []
 dilution_boxes = []
@@ -186,7 +193,7 @@ def update_boxes():
 		dilution_boxes[n].grid(row=n+2, column=1, pady=2)
 		titration_boxes.append(Entry(tab_data, justify='center', width=7))
 		titration_boxes[n].grid(row=n+2, column=2, pady=2)
-		sample_boxes.append(Entry(tab_data, justify='center'))
+		sample_boxes.append(Entry(tab_data, justify='center', width=30))
 		sample_boxes[n].grid(row=n+2, column=4, pady=2)
 		conc_boxes[n].insert('end', holder1[n])
 		dilution_boxes[n].insert('end', holder2[n])
@@ -330,16 +337,30 @@ def default_disable():
 	if raw_data.get() == False:
 		row.config(state='disabled')
 		column.config(state='disabled')
-		titrations_box.config(state='disabled')
-		max_conc_box.config(state='disabled')
-		dilution_box.config(state='disabled')
 		duplicate_check.config(state='disabled')
+		unique_dilutions.config(state='disabled')
+		updatebutton.config(state='disabled')
+		for i in range(int(unique_dilutions.get())):
+			conc_boxes[i].config(state='disabled')
+			dilution_boxes[i].config(state='disabled')
+			titration_boxes[i].config(state='disabled')
+			sample_boxes[i].config(state='disabled')
 def default_enable():
 	if raw_data.get() == True:
+		row.config(state='enabled')
+		column.config(state='enabled')
 		duplicate_check.config(state='enabled')
+		unique_dilutions.config(state='enabled')
+		updatebutton.config(state='enabled')
+		for i in range(int(unique_dilutions.get())):
+			conc_boxes[i].config(state='enabled')
+			dilution_boxes[i].config(state='enabled')
+			titration_boxes[i].config(state='enabled')
+			sample_boxes[i].config(state='enabled')
 
 fill_values()#fill in all the boxes
 default_disable()#start boxes disabled based on filled values
+default_enable()#start boxes enabled based on filled values
 
 #function for writing everything to the config.ini
 def config_set(section, option, value):

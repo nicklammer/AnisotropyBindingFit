@@ -32,6 +32,7 @@ I wrote this for python 2.7.16. In python 3 they replaced basestring with str (s
 	-If you choose to show a plot in a window, the script will pause until that window is closed.
 	-Normalization does not currently plot well for samples that do not bind. Planning to work around this in the future.
 	-Quadratic fitting may not work properly. The fits seem fine, but I get a runtime warning, something about dividing by zero. I would just avoid it for now.
+	-If you are not using a value, do not delete it. Just leave it alone and it will be ignored.
 
 #### Errors, other info
 
