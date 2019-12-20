@@ -41,7 +41,7 @@ def getkdfit(x, y, fiteq, p0, units):
 	for i in range(len(y)):
 		x[i] = np.array(x[i])
 		y[i] = np.array(y[i])
-		popt, _ = opt.curve_fit(fiteq, x[i], y[i], p0=p0)
+		popt, _ = opt.curve_fit(fiteq, x[i], y[i], p0=p0, bounds=((0,0,0),(np.inf,np.inf,np.inf)))
 		fits_x.append(np.geomspace(x[i][len(x[i])-1], x[i][0], 50))   
 		fits_y.append(fiteq(fits_x[i], *popt))
 		#use estimated parameters to normalize anisotropy to be fraction bound
@@ -70,7 +70,8 @@ def getquadfit(x, y, conc_L, fiteq, p0, units):
 		x[i] = np.array(x[i])
 		y[i] = np.array(y[i])
 		#use a lambda function to fix L in the quad equation
-		popt, _ = opt.curve_fit(lambda P, Kd, S, O: fiteq(P, Kd, S, O, conc_L), x[i], y[i], p0=p0)
+		popt, _ = opt.curve_fit(lambda P, Kd, S, O: fiteq(P, Kd, S, O, conc_L), 
+			x[i], y[i], p0=p0, bounds=((0,0,0),(np.inf,np.inf,np.inf)))
 		fits_x.append(np.geomspace(x[i][len(x[i])-1], x[i][0], 50))   
 		fits_y.append(fiteq(fits_x[i], popt[0], popt[1], popt[2], conc_L))
 		#use estimated parameters to normalize anisotropy to be fraction bound
@@ -221,8 +222,8 @@ def quad_allplot(conc, anisos, perplot, labels, units, y_title, conc_L, fiteq, p
 
 	#the rest of this is to figure out how many plots to make based on the perplot in the config
 	#plotcount gives the numer of plots minus one. leftovers gives the last one
-	plotcount=len(anisos)/perplot
-	leftovers=len(anisos)%perplot
+	plotcount=int(len(anisos)/perplot)
+	leftovers=int(len(anisos)%perplot)
 	#masterindex counts up per sample plotted. plotcounter counts the plots so I can number the files.
 	masterindex = 0
 	plotcounter = 1

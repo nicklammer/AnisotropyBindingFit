@@ -33,7 +33,6 @@ I updated this to be used with python 3.7.
 	-If values are missing, then the script will error. For example, you give 4 samples, but only 2 labels.
 	-If you choose to show a plot in a window, the script will pause until that window is closed.
 	-Normalization does not currently plot well for samples that do not bind. Planning to work around this in the future.
-	-Quadratic fitting may not work properly. The fits seem fine, but I get a runtime warning, something about dividing by zero. I would just avoid it for now.
 	-If you are not using a value, do not delete it. Just leave it alone and it will be ignored.
 
 #### Errors, other info
