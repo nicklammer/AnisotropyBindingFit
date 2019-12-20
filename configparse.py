@@ -1,18 +1,23 @@
 #config parser for FA plotting
-from ConfigParser import SafeConfigParser
+from configparser import ConfigParser
 import os
 
-parser = SafeConfigParser()
-parsestyle = SafeConfigParser()
+parser = ConfigParser()
+parsestyle = ConfigParser()
 dir_path = os.path.dirname(os.path.realpath(__file__))
 config_path = os.path.join(dir_path, 'config.ini')
 style_path = os.path.join(dir_path, 'plot_style.ini')
 parser.read(config_path)
 parsestyle.read(style_path)
 
+def config_write(file):
+	configfile = open(file, 'w')
+	parser.write(configfile)
+
 #file options
 raw_data = parser.getboolean('file options', 'raw data')
 file_sheet = parser.get('file options', 'sheet file')
+a_or_p = parser.get('file options', 'anisotropy or polarization')
 path_output = parser.get('file options', 'output folder')
 #sample layout
 rows = parser.getboolean('sample layout', 'rows')
@@ -22,7 +27,27 @@ dilution_factors = parser.get('sample layout', 'dilution factors').split(', ')
 dilution_factors = [float(n) for n in dilution_factors]
 titrations = parser.get('sample layout', 'titrations').split(', ')
 titrations = [int(n) for n in titrations]
-samples = parser.get('sample layout', 'samples').split(': ')
+#make sample and exclude lists usable
+samples_temp = parser.get('sample layout', 'samples').split(': ')
+samples_split = []
+samples = []
+for x in samples_temp:
+	samples_split.append(x.split(', '))
+for x in samples_split:
+	if x == ['none'] or x == ['']:
+		raise Exception('Must have sample numbers (check gui/config)')
+	else:
+		samples.append([int(n) for n in x])
+exclude_temp = parser.get('sample layout', 'excluded').split(': ')
+exclude_split = []
+exclude = []
+for x in exclude_temp:
+	exclude_split.append(x.split(', '))
+for x in exclude_split:
+	if x == ['none'] or x == ['']:
+		exclude.append([None])
+	else:
+		exclude.append([int(n) for n in x])
 units = parser.get('sample layout', 'units')
 dupe = parser.getboolean('sample layout', 'duplicates')
 labels_temp = parser.get('sample layout', 'labels')
@@ -44,6 +69,13 @@ marker_chosen = parser.get('plot options', 'marker style')
 marker_size = parser.getfloat('plot options', 'marker size')
 line_chosen = parser.get('plot options', 'line style')
 line_width = parser.getfloat('plot options', 'line width')
+plot_title_size = parser.getfloat('plot options', 'plot title size')
+x_title_size = parser.getfloat('plot options', 'x title size')
+y_title_size = parser.getfloat('plot options', 'y title size')
+x_tick_label_size = parser.getfloat('plot options', 'x tick label size')
+y_tick_label_size = parser.getfloat('plot options', 'y tick label size')
+x_tick_size = parser.getfloat('plot options', 'x tick size')
+y_tick_size = parser.getfloat('plot options', 'y tick size')
 legend = parser.getboolean('plot options', 'legend')
 png = parser.getboolean('plot options', 'png')
 svg = parser.getboolean('plot options', 'svg')

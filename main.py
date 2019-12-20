@@ -5,14 +5,16 @@ import plot
 def run():
 	raw_data = configparse.raw_data
 	file_sheet = configparse.file_sheet
+	a_or_p = configparse.a_or_p
 	path_output = configparse.path_output
 	plotname = configparse.plotname
-	file_anisotropy= path_output+plotname+'_anisotropy.xls'
+	file_values= path_output+plotname+'_values.xls'
 	rows = configparse.rows
 	concentrations = configparse.concentrations
 	dilution_factors = configparse.dilution_factors
 	titrations = configparse.titrations
-	samples_temp = configparse.samples
+	samples = configparse.samples
+	exclude = configparse.exclude
 	units = configparse.units
 	dupe = configparse.dupe
 	labels = configparse.labels
@@ -26,44 +28,64 @@ def run():
 	marker = configparse.marker
 	line_width = configparse.line_width
 	line_style = configparse.line_style
+	plot_title_size = configparse.plot_title_size
+	x_title_size = configparse.x_title_size
+	y_title_size = configparse.y_title_size
+	x_tick_label_size = configparse.x_tick_label_size
+	y_tick_label_size = configparse.y_tick_label_size
+	x_tick_size = configparse.x_tick_size
+	y_tick_size = configparse.y_tick_size
 	legend = configparse.legend
 	png = configparse.png
 	svg = configparse.svg
 	plottitle = configparse.plottitle
 	showplot = configparse.showplot
-	#make sample list usable
-	samples_split = []
-	samples = []
-	for x in samples_temp:
-		samples_split.append(x.split(', '))
-	for x in samples_split:
-		samples.append([int(n) for n in x])
 
 	if raw_data == True:
-		#pick between a row layout or columns 
-		if rows == False:
-			parallel, perpendicular = read.excel_open_colsamples(file_sheet)
-		else:
-			parallel, perpendicular = read.excel_open_rowsamples(file_sheet)
-		#calculate anisotropy and output in a formatted excel sheet
-		conc_all, anisos = read.format(parallel, perpendicular, concentrations, dilution_factors, titrations, samples, dupe)
-		while len(anisos) > len(labels):
+		if a_or_p == 'anisotropy':
+			y_title = "Anisotropy"
+			#pick between a row layout or columns 
+			if rows == False:
+				parallel, perpendicular = read.excel_open_colsamples(file_sheet)
+			else:
+				parallel, perpendicular = read.excel_open_rowsamples(file_sheet)
+			#calculate anisotropy and output to a formatted excel sheet
+			conc_all, yvalues = read.format(parallel, perpendicular, concentrations, 
+				dilution_factors, titrations, samples, dupe, exclude)
+		elif a_or_p == 'polarization':
+			y_title = "Polarization"
+			#pick between a row layout or columns 
+			if rows == False:
+				polarization = read.polarization_colsamples(file_sheet)
+			else:
+				polarization = read.polarization_rowsamples(file_sheet)
+			#output polarization to a formatted excel sheet
+			conc_all, yvalues = read.polarization_format(polarization, concentrations, 
+				dilution_factors, titrations, samples, dupe, exclude)
+		while len(yvalues) > len(labels):
+				if labels[0] == '':
+					labels[0] = "No label"
 				labels.append("No label")
-		read.data_write(conc_all, anisos, labels, file_anisotropy)
-
+		read.data_write(conc_all, yvalues, labels, file_values)
 	else:
-		conc_all, anisos = read.data_read(file_sheet)
+		if a_or_p == 'anisotropy':
+			y_title = "Anisotropy"
+		elif a_or_p == 'polarization':
+			y_title = "Polarization"
+		conc_all, yvalues = read.data_read(file_sheet)
 
 	#fit data to simplified binding isotherm
 	if fiteq == "kdfit":
-		plot.allplot(conc_all,anisos,perplot,labels,units,plot.kdfit,p0,normalization,
-			plottitle,colors,marker_size,marker,line_width,line_style,legend,
-			png,svg,plotname,path_output,showplot)
+		plot.allplot(conc_all,yvalues,perplot,labels,units,y_title,plot.kdfit,p0,normalization,
+			plottitle,colors,marker_size,marker,line_width,line_style,plot_title_size,
+			x_title_size,y_title_size,x_tick_label_size,y_tick_label_size,x_tick_size,
+			y_tick_size,legend,png,svg,plotname,path_output,showplot)
 	#quadratic fitting
 	elif fiteq == "quad":
-		plot.quad_allplot(conc_all,anisos,perplot,labels,units,conc_L,plot.quad,p0,normalization,
-			plottitle,colors,marker_size,marker,line_width,line_style,legend,
-			png,svg,plotname,path_output,showplot)
+		plot.quad_allplot(conc_all,yvalues,perplot,labels,units,y_title,conc_L,plot.quad,p0,
+			normalization,plottitle,colors,marker_size,marker,line_width,line_style,
+			plot_title_size,x_title_size,y_title_size,x_tick_label_size,y_tick_label_size,
+			x_tick_size,y_tick_size,legend,png,svg,plotname,path_output,showplot)
 
 	print ("data is cool")
 

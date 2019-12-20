@@ -1,9 +1,12 @@
 #functions for fitting and plotting
 import matplotlib
-#matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 from matplotlib.font_manager import FontProperties
+matplotlib.rcParams['font.sans-serif'] = "Arial"
+matplotlib.rcParams['font.family'] = "sans-serif"
+plt.rcParams['svg.fonttype'] = 'none'
+#from scipy.stats import chisquare
 import scipy.optimize as opt
 import numpy as np
 
@@ -15,14 +18,26 @@ def quad(P, Kd, S, O, L): #in this form, L refers to the ligand held at constant
 	a = P+L+Kd
 	return S*((a-(((a**2)-(4*P*L))**0.5))/(2*L))+O
 
+def comp():#placeholder for competition fitting
+	return "WIP"
+
+def r_squared(y, residuals):
+	ss_res = np.sum(residuals**2)
+	ss_tot = np.sum((y-np.mean(y))**2)
+	r_sq = 1-(ss_res/ss_tot)
+	return r_sq
+
+# def chi_squared(obs, exp):#calculate chi_squared (this probably doesn't need to be it's own thing)
+# 	chi_sq = chisquare(obs, f_exp=exp) #returns (chi_sq, p-value)
+# 	return chi_sq[0]
+	
 #decided to make separate functions for each fitting equation also to make my life easier
 def getkdfit(x, y, fiteq, p0, units):
 	fits_x = []
 	fits_y = []
 	y_norm = []
+	#param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"],["Chi^2"]]
 	param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"]]
-	# x = np.array(x) #making them arrays makes the math easier
-	# y = np.array(y)
 	for i in range(len(y)):
 		x[i] = np.array(x[i])
 		y[i] = np.array(y[i])
@@ -33,20 +48,23 @@ def getkdfit(x, y, fiteq, p0, units):
 		y_norm.append((y[i]-popt[2])/popt[1])
 		#calculate R-squared
 		residuals = y[i] - fiteq(x[i], *popt)
-		ss_res = np.sum(residuals**2)
-		ss_tot = np.sum((y[i]-np.mean(y[i]))**2)
-		r_sq = 1-(ss_res/ss_tot)
+		r_sq = r_squared(y[i], residuals)
+		#calculate chi-squared
+		# y_expected = fiteq(x[i], *popt)
+		# chi_sq = chi_squared(y[i],y_expected)
 		#format parameters for table
 		param_table[0].append(str(round(popt[0],2)))
 		param_table[1].append(str(round(popt[1],4)))
 		param_table[2].append(str(round(popt[2],4)))
 		param_table[3].append(str(round(r_sq,4)))
+		#param_table[4].append(str(round(chi_sq,4)))
 	return fits_x, fits_y, y_norm, param_table
 
 def getquadfit(x, y, conc_L, fiteq, p0, units):
 	fits_x = []
 	fits_y = []
 	y_norm = []
+	#param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"],["Chi^2"]]
 	param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"]]
 	for i in range(len(y)):
 		x[i] = np.array(x[i])
@@ -59,19 +77,24 @@ def getquadfit(x, y, conc_L, fiteq, p0, units):
 		y_norm.append((y[i]-popt[2])/popt[1])
 		#calculate R-squared
 		residuals = (y[i] - fiteq(x[i], popt[0], popt[1], popt[2], conc_L))
-		ss_res = np.sum(residuals**2)
-		ss_tot = np.sum((y[i]-np.mean(y[i]))**2)
-		r_sq = 1-(ss_res/ss_tot)
+		r_sq = r_squared(y[i], residuals)
+		#calculate chi-squared
+		# y_expected = fiteq(x[i], popt[0], popt[1], popt[2], conc_L)
+		# chi_sq = chi_squared(y[i],y_expected)
 		#format parameters for table
 		param_table[0].append(str(round(popt[0],2)))
 		param_table[1].append(str(round(popt[1],4)))
 		param_table[2].append(str(round(popt[2],4)))
 		param_table[3].append(str(round(r_sq,4)))
+		#param_table[4].append(str(round(chi_sq,4)))
 	return fits_x, fits_y, y_norm, param_table
 
 #general function for scatter plot with a log x scale with a table underneath
 def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param, 
-	title, color, marker_size, marker, line_width, line_style, legend, png, svg, plotname, filepath, showplot):
+	title, color, marker_size, marker, line_width, line_style, 
+	plot_title_size, x_title_size, y_title_size, x_tick_label_size,
+	y_tick_label_size, x_tick_size, y_tick_size, legend, png, svg, 
+	plotname, filepath, showplot):
 	fig = plt.figure(figsize=(7.0,9.0), dpi=100) #forces figure size and shape 
 	fig.subplots_adjust(left=0.125, right=0.95, bottom=0.05, top=0.9) #adjusts margins
 	ax1 = plt.subplot2grid((6, 1), (0,0), rowspan=4) #subplot for scatter
@@ -95,13 +118,21 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 	#for first column and first row, bold the font
 	for (row,column), cell in table.get_celld().items():
 		if (row==0) or (column==0):
-			cell.set_text_props(fontproperties=FontProperties(weight='bold', size=10))
+			cell.set_text_props(fontproperties=FontProperties(weight='bold', size=12))
 	table.scale(1.25,2) #scales column width and row heights
 	plt.axis('off') #removes plot axes for the table
-	ax1.set_title(title, fontsize=13)
 	ax1.set_xscale('log')
-	ax1.set_ylabel(y_ax, fontsize=13)
-	ax1.set_xlabel("[Protein] ("+units+")", fontsize=13)
+	#labels, font sizes, and tick sizes
+	ax1.set_title(title, fontsize=plot_title_size)
+	ax1.set_ylabel(y_ax, fontsize=x_title_size)
+	ax1.set_xlabel("[Protein] ("+units+")", fontsize=y_title_size)
+	ax1.tick_params(axis='x', which='major', labelsize=x_tick_label_size)
+	ax1.tick_params(axis='y', which='major', labelsize=y_tick_label_size)
+	ax1.tick_params(axis='x', which='major', length=x_tick_size)
+	ax1.tick_params(axis='x', which='minor', length=x_tick_size/2)
+	ax1.tick_params(axis='y', which='major', length=y_tick_size)
+
+	ax1.margins(x=-0.1)
 	#this part assumes that y is a list of lists. each inner list is one sample to plot
 	legendicons = []
 	for i in range(len(y)):
@@ -112,7 +143,7 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 			legendicons.append(mlines.Line2D([],[],color=color[i], marker=marker,
 				linestyle=line_style, label=labels[i]))
 	if legend == True:
-		ax1.legend(legendicons, labels, fontsize=12, loc='upper left')
+		ax1.legend(legendicons, labels, fontsize=13, loc='upper left')
 	#save as png for quick viewing, svg for further editing
 	if png == True:
 		plt.savefig(filepath+plotname+'.png')
@@ -122,13 +153,14 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 	if showplot == True:
 		plt.show()
 
-def allplot(conc, anisos, perplot, labels, units, fiteq, p0, normalization, title,
-	color, marker_size, marker, line_width, line_style, legend, png, svg,
-	plotname, filepath, showplot):
+def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalization, title,
+	color, marker_size, marker, line_width, line_style, plot_title_size, x_title_size, 
+	y_title_size, x_tick_label_size, y_tick_label_size, x_tick_size, y_tick_size, 
+	legend, png, svg, plotname, filepath, showplot):
 	#this is to figure out how many plots to make based on the perplot in the config
 	#plotcount gives the numer of plots minus one. leftovers gives the last one
-	plotcount=len(anisos)/perplot
-	leftovers=len(anisos)%perplot
+	plotcount=int(len(anisos)/perplot)
+	leftovers=int(len(anisos)%perplot)
 	#masterindex counts up per sample plotted. plotcounter counts the plots so I can number the files.
 	masterindex = 0
 	plotcounter = 1
@@ -144,14 +176,17 @@ def allplot(conc, anisos, perplot, labels, units, fiteq, p0, normalization, titl
 			masterindex+=1
 		#fit and plot using the condensed sample list
 		fits_x, fits_y, y_norm, param = getkdfit(conc_temp, anisos_temp, fiteq, p0, units)
-		logplot(conc_temp, anisos_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, title, color, marker_size, marker, line_width, line_style, legend,
-			png, svg, plotname+str(plotcounter), filepath, showplot)
+		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
+			param, title, color, marker_size, marker, line_width, line_style, plot_title_size, 
+			x_title_size, y_title_size, x_tick_label_size, y_tick_label_size, x_tick_size, 
+			y_tick_size, legend, png, svg, plotname+str(plotcounter), filepath, showplot)
 		if normalization == 1:
 			normfits_x, normfits_y, _, normparam = getkdfit(conc_temp, y_norm, fiteq, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
-				line_style, legend, png, svg, plotname+str(plotcounter)+'_normalized', filepath, showplot)
+				line_style,plot_title_size, x_title_size, y_title_size, x_tick_label_size,
+				y_tick_label_size, x_tick_size, y_tick_size, legend, png, svg, 
+				plotname+str(plotcounter)+'_normalized', filepath, showplot)
 		plotcounter+=1
 	#deal with the rest of the samples if there are any leftovers. code is same as above.
 	if leftovers>0:
@@ -164,19 +199,24 @@ def allplot(conc, anisos, perplot, labels, units, fiteq, p0, normalization, titl
 			labels_temp.append(labels[masterindex])
 			masterindex+=1
 		fits_x, fits_y, y_norm, param = getkdfit(conc_temp, anisos_temp, fiteq, p0, units)
-		logplot(conc_temp, anisos_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, title, color, marker_size, marker, line_width, line_style, legend,
-			png, svg, plotname+str(plotcounter), filepath, showplot)
+		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
+			param, title, color, marker_size, marker, line_width, line_style, 
+			plot_title_size, x_title_size, y_title_size, x_tick_label_size,
+			y_tick_label_size, x_tick_size, y_tick_size,legend, png, svg, 
+			plotname+str(plotcounter), filepath, showplot)
 		if normalization == 1:
 			normfits_x, normfits_y, _, normparam = getkdfit(conc_temp, y_norm, fiteq, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
-				line_style, legend, png, svg, plotname+str(plotcounter)+'_normalized', filepath, showplot)
+				line_style, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
+				y_tick_label_size, x_tick_size, y_tick_size, legend, png, svg, 
+				plotname+str(plotcounter)+'_normalized', filepath, showplot)
 
 
-def quad_allplot(conc, anisos, perplot, labels, units, conc_L, fiteq, p0, normalization, 
-	title, color, marker_size, marker, line_width, line_style, legend, png, svg,
-	plotname, filepath, showplot):
+def quad_allplot(conc, anisos, perplot, labels, units, y_title, conc_L, fiteq, p0, normalization, 
+	title, color, marker_size, marker, line_width, line_style, plot_title_size, x_title_size, 
+	y_title_size, x_tick_label_size, y_tick_label_size, x_tick_size, y_tick_size, 
+	legend, png, svg, plotname, filepath, showplot):
 	#need to fix sqrt with normalization
 
 	#the rest of this is to figure out how many plots to make based on the perplot in the config
@@ -198,14 +238,17 @@ def quad_allplot(conc, anisos, perplot, labels, units, conc_L, fiteq, p0, normal
 			masterindex+=1
 		#fit and plot using the condensed sample list
 		fits_x, fits_y, y_norm, param = getquadfit(conc_temp, anisos_temp, conc_L, fiteq, p0, units)
-		logplot(conc_temp, anisos_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, title, color, marker_size, marker, line_width, line_style, legend,
-			png, svg, plotname+str(plotcounter), filepath, showplot)
+		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
+			param, title, color, marker_size, marker, line_width, line_style, plot_title_size, 
+			x_title_size, y_title_size, x_tick_label_size, y_tick_label_size, x_tick_size, y_tick_size, 
+			legend, png, svg, plotname+str(plotcounter), filepath, showplot)
 		if normalization == 1:
 			normfits_x, normfits_y, _, normparam = getquadfit(conc_temp, y_norm, conc_L, fiteq, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
-				line_style, legend, png, svg, plotname+str(plotcounter)+'_normalized', filepath, showplot)
+				line_style, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
+				y_tick_label_size, x_tick_size, y_tick_size,legend, png, svg, 
+				plotname+str(plotcounter)+'_normalized', filepath, showplot)
 		plotcounter+=1
 	#deal with the rest of the samples if there are any leftovers. code is same as above.
 	if leftovers>0:
@@ -218,11 +261,15 @@ def quad_allplot(conc, anisos, perplot, labels, units, conc_L, fiteq, p0, normal
 			labels_temp.append(labels[masterindex])
 			masterindex+=1
 		fits_x, fits_y, y_norm, param = getquadfit(conc_temp, anisos_temp, conc_L, fiteq, p0, units)
-		logplot(conc_temp, anisos_temp, labels_temp, units, 'Anisotropy', fits_x, fits_y,
-			param, title, color, marker_size, marker, line_width, line_style, legend,
-			png, svg, plotname+str(plotcounter), filepath, showplot)
+		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
+			param, title, color, marker_size, marker, line_width, line_style, 
+			plot_title_size, x_title_size, y_title_size, x_tick_label_size,
+			y_tick_label_size, x_tick_size, y_tick_size, legend, png, svg, 
+			plotname+str(plotcounter), filepath, showplot)
 		if normalization == 1:
 			normfits_x, normfits_y, _, normparam = getquadfit(conc_temp, y_norm, conc_L, fiteq, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
-				line_style, legend, png, svg, plotname+str(plotcounter)+'_normalized', filepath, showplot)
+				line_style, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
+				y_tick_label_size, x_tick_size, y_tick_size, legend, png, svg, 
+				plotname+str(plotcounter)+'_normalized', filepath, showplot)
