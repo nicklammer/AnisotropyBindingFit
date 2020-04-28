@@ -41,6 +41,10 @@ def run():
 	plottitle = configparse.plottitle
 	showplot = configparse.showplot
 
+	for x in samples:
+		if x == ['none'] or x == ['']:
+			raise Exception('Must have sample numbers (check gui/config)')
+
 	if raw_data == True:
 		if a_or_p == 'anisotropy':
 			y_title = "Anisotropy"
@@ -72,7 +76,11 @@ def run():
 			y_title = "Anisotropy"
 		elif a_or_p == 'polarization':
 			y_title = "Polarization"
-		conc_all, yvalues = read.data_read(file_sheet)
+		conc_all, yvalues, labels = read.data_read(file_sheet)
+		while len(yvalues) > len(labels):
+			if labels[0] == '':
+				labels[0] = "No label"
+			labels.append("No label")
 
 	#fit data to simplified binding isotherm
 	if fiteq == "kdfit":

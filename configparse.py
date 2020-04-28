@@ -21,28 +21,25 @@ a_or_p = parser.get('file options', 'anisotropy or polarization')
 path_output = parser.get('file options', 'output folder')
 #sample layout
 rows = parser.getboolean('sample layout', 'rows')
-concentrations = parser.get('sample layout', 'concentrations').split(', ')
-concentrations = [float(n) for n in concentrations]
-dilution_factors = parser.get('sample layout', 'dilution factors').split(', ')
-dilution_factors = [float(n) for n in dilution_factors]
-titrations = parser.get('sample layout', 'titrations').split(', ')
-titrations = [int(n) for n in titrations]
+concentrations = [float(x.strip()) for x in parser.get('sample layout', 'concentrations').split(',')]
+dilution_factors = [float(x.strip()) for x in parser.get('sample layout', 'dilution factors').split(',')]
+titrations = [int(x.strip()) for x in parser.get('sample layout', 'titrations').split(',')]
 #make sample and exclude lists usable
 samples_temp = parser.get('sample layout', 'samples').split(': ')
 samples_split = []
 samples = []
 for x in samples_temp:
-	samples_split.append(x.split(', '))
+	samples_split.append([n.strip() for n in x.split(',')])
 for x in samples_split:
 	if x == ['none'] or x == ['']:
-		raise Exception('Must have sample numbers (check gui/config)')
+		samples.append(x)
 	else:
 		samples.append([int(n) for n in x])
 exclude_temp = parser.get('sample layout', 'excluded').split(': ')
 exclude_split = []
 exclude = []
 for x in exclude_temp:
-	exclude_split.append(x.split(', '))
+	exclude_split.append([n.strip() for n in x.split(',')])
 for x in exclude_split:
 	if x == ['none'] or x == ['']:
 		exclude.append([None])
@@ -52,6 +49,7 @@ units = parser.get('sample layout', 'units')
 dupe = parser.getboolean('sample layout', 'duplicates')
 labels_temp = parser.get('sample layout', 'labels')
 labels = labels_temp.split(', ')
+labels = [x.strip() for x in parser.get('sample layout', 'labels').split(',')]
 #fit options
 fiteq = parser.get('fit options', 'fiteq')
 conc_L = parser.getfloat('fit options', 'ligand concentration')
@@ -62,9 +60,7 @@ p0 = [Kdi, Si, Oi]
 normalization = parser.getboolean('fit options', 'normalization')
 #plot options
 perplot = parser.getint('plot options', 'per plot')
-#strip is a work around for the gui editor. I can't get it to work there
-colors_key_temp = parser.get('plot options', 'colors').strip(", ")
-colors_key = colors_key_temp.split(', ')
+colors_key=[x.strip() for x in parser.get('plot options', 'colors').split(',')]
 marker_chosen = parser.get('plot options', 'marker style')
 marker_size = parser.getfloat('plot options', 'marker size')
 line_chosen = parser.get('plot options', 'line style')

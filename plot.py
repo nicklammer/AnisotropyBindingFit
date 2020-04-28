@@ -133,7 +133,11 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 	ax1.tick_params(axis='x', which='minor', length=x_tick_size/2)
 	ax1.tick_params(axis='y', which='major', length=y_tick_size)
 
-	ax1.margins(x=-0.1)
+	#fix the dumb margins here
+	x_upper = max([series[0] for series in x])
+	x_lower = min([series[-1] for series in x])
+	ax1.set_xlim(x_lower/2, x_upper*2)
+
 	#this part assumes that y is a list of lists. each inner list is one sample to plot
 	legendicons = []
 	for i in range(len(y)):

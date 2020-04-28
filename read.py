@@ -15,7 +15,6 @@ def excel_open_rowsamples(file_raw):
 	#scan rows for the parallel data by looking for the heading for it
 	#then look through the rows for data. If there's data, add it to a holder list, then append
 	for row in range(sheet_raw.nrows):
-		#if str(sheet_raw.cell_value(row,1)) == "1. Raw Data (parallel)":
 		if "parallel" in str(sheet_raw.cell_value(row,1)):
 			for r in range(2,18):
 				for c in range (1,25): #this makes it so you only get the number of titrations you want
@@ -24,7 +23,6 @@ def excel_open_rowsamples(file_raw):
 				parallel.append(holder)
 				holder = []
 	#same as above, but with perpendicular data
-		#elif str(sheet_raw.cell_value(row,1)) == "2. Raw Data (perpendicular)":
 		elif "perpendicular" in str(sheet_raw.cell_value(row,1)):
 			for r in range(2,18):
 				for c in range (1,25):
@@ -48,7 +46,6 @@ def excel_open_colsamples(file_raw):
 	#scan column and rows for parallel and perpendicular data
 	for col in range(sheet_raw.ncols):
 		for row in range(sheet_raw.nrows):
-			#if str(sheet_raw.cell_value(row,col)) == "1. Raw Data (parallel)":
 			if "parallel" in str(sheet_raw.cell_value(row,col)):
 				for c in range (24):
 					for r in range(2,18):
@@ -56,7 +53,6 @@ def excel_open_colsamples(file_raw):
 							holder.append(sheet_raw.cell_value(row+r,col+c))
 					parallel.append(holder)
 					holder = []
-			#elif str(sheet_raw.cell_value(row,col)) == "2. Raw Data (perpendicular)":
 			elif "perpendicular" in str(sheet_raw.cell_value(row,col)):
 				for c in range (24):
 					for r in range(2,18):
@@ -245,14 +241,15 @@ def data_read(file):
 	sheet = wb.sheet_by_index(0)
 	concentrations = []
 	anisos = []
+	labels = []
 	holder = []
 	holder2 = []
-
 	for n in range(sheet.ncols):
 		if n%2 == 0:
 			for i in range(sheet.nrows-1):
 				holder.append((sheet.cell_value(i+1, n)))
 				holder2.append((sheet.cell_value(i+1, n+1)))
+			labels.append((sheet.cell_value(0, n+1)))
 			#these remove empty cells that show up as u'' (a string)
 			holder = [float(x) for x in holder if isinstance(x, float) == True]
 			holder2 = [float(x) for x in holder2 if isinstance(x, float) == True]
@@ -261,6 +258,6 @@ def data_read(file):
 			holder = []
 			holder2 = []
 
-	return concentrations, anisos
+	return concentrations, anisos, labels
 
 

@@ -60,7 +60,10 @@ def raw_data_false():
 		sample_boxes[i].config(state='disabled')
 		exclude_boxes[i].config(state='disabled')
 def addcolor(event):
-	color_box.insert('end', color_dd.get()+', ')
+	if color_box.get('1.0', 'end')[len(color_box.get('1.0', 'end'))-2] == ',':
+		color_box.insert('end', color_dd.get()+',')
+	else:
+		color_box.insert('end', ','+color_dd.get()+',')
 
 #set all the vars to be used
 raw_data = BooleanVar()
@@ -151,7 +154,7 @@ units_box = Entry(tab1)
 units_box.grid(row=13, column=1, sticky='w', pady=2)
 
 Label(tab1, text="Sample labels\n(Enter names in order\nseparated by a comma and space)", justify='center').grid(row=17, padx=6)
-label_box = Text(tab1, height=2, width=40, borderwidth=2)
+label_box = Text(tab1, height=2, width=40, borderwidth=2, font="TkDefaultFont")
 label_box.grid(row=17, column=1, sticky='w', pady=5)
 duplicate_check = Checkbutton(tab1, text="Samples done in duplicate", 
 	variable=duplicate, onvalue=True, offvalue=False)
@@ -260,7 +263,7 @@ Label(tab_plot, text="Colors for samples (in plotted order)").grid(row=2, column
 color_dd = ttk.Combobox(tab_plot, values=colors_key)
 color_dd.grid(row=2, column=1, pady=3)
 color_dd.bind("<<ComboboxSelected>>", addcolor)
-color_box = Text(tab_plot, height=2, width=40, borderwidth=2)
+color_box = Text(tab_plot, height=2, width=60, borderwidth=2, font="TkDefaultFont")
 color_box.grid(row=3, column=0, columnspan=2, padx=20, pady=3)
 
 legend_check = Checkbutton(tab_plot, text="Show legend", 
@@ -345,9 +348,9 @@ def fill_values():
 	value_insert(units_box, parser.get('sample layout', 'units'))
 	value_text_insert(label_box, parser.get('sample layout', 'labels'))
 	value_insert(unique_dilutions, parser.get('sample layout', 'unique dilutions'))
-	holder1 = parser.get('sample layout', 'concentrations').split(', ')
-	holder2 = parser.get('sample layout', 'dilution factors').split(', ')
-	holder3 = parser.get('sample layout', 'titrations').split(', ')
+	holder1 = [x.strip() for x in parser.get('sample layout', 'concentrations').split(',')]
+	holder2 = [x.strip() for x in parser.get('sample layout', 'dilution factors').split(',')]
+	holder3 = [x.strip() for x in parser.get('sample layout', 'titrations').split(',')]
 	holder4 = parser.get('sample layout', 'samples').split(': ')
 	holder5 = parser.get('sample layout', 'excluded').split(': ')
 	while len(holder1) < int(unique_dilutions.get()):
@@ -381,7 +384,7 @@ def fill_values():
 	value_insert(o_box, parser.getfloat('fit options', 'Oi'))
 	value_set(normalization_value, parser.getboolean('fit options', 'normalization'))
 	value_insert(perplot_box, parser.getint('plot options', 'per plot'))
-	value_text_insert(color_box, parser.get('plot options', 'colors').strip(", "))
+	value_text_insert(color_box, parser.get('plot options', 'colors').strip(","))
 	value_insert(marker_dd, parser.get('plot options', 'marker style'))
 	value_insert(marker_size_box, parser.get('plot options', 'marker size'))
 	value_insert(line_dd, parser.get('plot options', 'line style'))
@@ -477,7 +480,7 @@ def save_everything():
 	config_set('fit options', 'Oi', o_box.get())
 	config_set('fit options', 'normalization', str(normalization_value.get()))
 	config_set('plot options', 'per plot', perplot_box.get())
-	config_set('plot options', 'colors', color_box.get('1.0', 'end').strip('\n'))
+	config_set('plot options', 'colors', (color_box.get('1.0', 'end').strip('\n')).strip(','))
 	config_set('plot options', 'marker style', marker_dd.get())
 	config_set('plot options', 'marker size', marker_size_box.get())
 	config_set('plot options', 'line style', line_dd.get())
