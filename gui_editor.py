@@ -1,15 +1,18 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
-import configparse
+import gui_configparse
 import os
 import sys
 from configparser import ConfigParser
 
 #import style keys from plot_style.ini through configparse
-colors_key = configparse.colors_key_fordict
-marker_key = configparse.marker_key
-line_key = configparse.line_key
+#colors_key = configparse.colors_key_fordict
+#marker_key = configparse.marker_key
+#line_key = configparse.line_key
+colors_key = gui_configparse.colors_key_fordict
+marker_key = gui_configparse.marker_key
+line_key = gui_configparse.line_key
 
 root = Tk()
 #functions for buttons
@@ -366,8 +369,8 @@ def fill_values():
 	value_set(folder_path, parser.get('file options', 'output folder'))
 	value_insert(units_box, parser.get('sample layout', 'units'))
 	value_insert(unique_dilutions, parser.get('sample layout', 'unique dilutions'))
-	holder1 = parser.get('sample layout', 'labels').split(': ')
-	holder2 = parser.get('sample layout', 'titration row or col').split(': ')
+	holder1 = [x.strip(':') for x in parser.get('sample layout', 'labels').split(': ')]
+	holder2 = [x.strip(':') for x in parser.get('sample layout', 'titration row or col').split(': ')]
 	holder3 = [x.strip() for x in parser.get('sample layout', 'titrations').split(',')]
 	holder4 = [x.strip() for x in parser.get('sample layout', 'concentrations').split(',')]
 	holder5 = [x.strip() for x in parser.get('sample layout', 'dilution factors').split(',')]
