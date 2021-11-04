@@ -242,8 +242,8 @@ updatebutton.grid(row=0, column=2, padx=5, pady=5)
 #Fitting options
 
 Label(tab_fit, text="Choose type of fit:").grid(row=0)
-fiteqs = ['simplified binding isotherm','quadratic','Hill']
-fiteqs_id = ['kdfit','quad','hill']
+fiteqs = ['simplified binding isotherm','quadratic','Hill','multi-site']
+fiteqs_id = ['kdfit','quad','hill','multi']
 fiteqs_dict = dict(zip(fiteqs_id,range(len(fiteqs))))
 fit_menu = ttk.Combobox(tab_fit, values=fiteqs, width=25)
 fit_menu.grid(row=0, column=1, padx=3, pady=3)
@@ -258,11 +258,18 @@ s_box.grid(row=3, column=1)
 Label(tab_fit, text="O:").grid(row=4, pady=2)
 o_box = Entry(tab_fit)
 o_box.grid(row=4, column=1)
-Label(tab_fit, text="Ligand concentrations in order\n(for pre-formatted data only):").grid(row=5, pady=2)
+Label(tab_fit, text="Multi-site binding only:").grid(row=5, pady=2)
+Label(tab_fit, text="Kd2:").grid(row=6, pady=2)
+kd2_box = Entry(tab_fit)
+kd2_box.grid(row=6, column=1)
+Label(tab_fit, text="S2:").grid(row=7, pady=2)
+s2_box = Entry(tab_fit)
+s2_box.grid(row=7, column=1)
+Label(tab_fit, text="Ligand concentrations in order\n(for pre-formatted data only):").grid(row=8, pady=2)
 L_box = Entry(tab_fit)
-L_box.grid(row=5, column=1)
+L_box.grid(row=8, column=1)
 normalization_check = Checkbutton(tab_fit, text="Plot fraction bound normalization", 
-	variable=normalization_value, onvalue=True, offvalue=False).grid(row=6)
+	variable=normalization_value, onvalue=True, offvalue=False).grid(row=9)
 
 
 #Plot options
@@ -401,6 +408,8 @@ def fill_values():
 	value_insert(kd_box, parser.getfloat('fit options', 'Kdi'))
 	value_insert(s_box, parser.getfloat('fit options', 'Si'))
 	value_insert(o_box, parser.getfloat('fit options', 'Oi'))
+	value_insert(kd2_box, parser.getfloat('fit options', 'Kd2i'))
+	value_insert(s2_box, parser.getfloat('fit options', 'S2i'))
 	value_insert(L_box, parser.get('fit options', 'Ligand pre-formatted'))
 	value_set(normalization_value, parser.getboolean('fit options', 'normalization'))
 	value_insert(perplot_box, parser.getint('plot options', 'per plot'))
@@ -501,6 +510,8 @@ def save_everything():
 	config_set('fit options', 'Kdi', kd_box.get())
 	config_set('fit options', 'Si', s_box.get())
 	config_set('fit options', 'Oi', o_box.get())
+	config_set('fit options', 'Kd2i', kd2_box.get())
+	config_set('fit options', 'S2i', s2_box.get())
 	config_set('fit options', 'Ligand pre-formatted', L_box.get())
 	config_set('fit options', 'normalization', str(normalization_value.get()))
 	config_set('plot options', 'per plot', perplot_box.get())

@@ -72,17 +72,24 @@ def run():
 
 	#fit data to simplified binding isotherm
 	if fiteq == "kdfit" or fiteq == "hill":
+		p0=p0[0:3]
 		plot.allplot(conc_all,yvalues,perplot,labels_clean,units,y_title,fiteq,p0,normalization,
 			plottitle,colors,marker_size,marker,line_width,line_style,plot_title_size,
 			x_title_size,y_title_size,x_tick_label_size,y_tick_label_size,x_tick_size,
 			y_tick_size,legend,png,svg,plotname,path_output,showplot)
 	#quadratic fitting
 	elif fiteq == "quad":
+		p0=p0[0:3]
 		plot.quad_allplot(conc_all,yvalues,perplot,labels_clean,units,y_title,ligand_clean,fiteq,p0,
 			normalization,plottitle,colors,marker_size,marker,line_width,line_style,
 			plot_title_size,x_title_size,y_title_size,x_tick_label_size,y_tick_label_size,
 			x_tick_size,y_tick_size,legend,png,svg,plotname,path_output,showplot)
-
+	#multi-site fitting
+	elif fiteq == "multi":
+		plot.allplot(conc_all,yvalues,perplot,labels_clean,units,y_title,fiteq,p0,normalization,
+			plottitle,colors,marker_size,marker,line_width,line_style,plot_title_size,
+			x_title_size,y_title_size,x_tick_label_size,y_tick_label_size,x_tick_size,
+			y_tick_size,legend,png,svg,plotname,path_output,showplot)
 	print ("data is cool")
 
 if __name__ == "__main__":
