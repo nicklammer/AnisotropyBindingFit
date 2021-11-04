@@ -1,6 +1,7 @@
 #config parser for FA plotting
 from configparser import ConfigParser
 import os
+import string
 
 parser = ConfigParser()
 parsestyle = ConfigParser()
@@ -13,6 +14,8 @@ parsestyle.read(style_path)
 def config_write(file):
 	configfile = open(file, 'w')
 	parser.write(configfile)
+#create dict for letter denoted wells for later
+letters=dict(zip((string.ascii_uppercase)[0:16],range(0,16)))
 
 #file options
 raw_data = parser.getboolean('file options', 'raw data')
@@ -20,21 +23,42 @@ file_sheet = parser.get('file options', 'sheet file')
 a_or_p = parser.get('file options', 'anisotropy or polarization')
 path_output = parser.get('file options', 'output folder')
 #sample layout
-rows = parser.getboolean('sample layout', 'rows')
+labels_temp = parser.get('sample layout', 'labels').split(': ')
+labels = []
+for x in labels_temp:
+	labels.append([n.strip() for n in x.split(',')])
+
+rc_temp = parser.get('sample layout', 'titration row or col').split(': ')
+rc = []
+for x in rc_temp:
+	rc.append([n.strip() for n in x.split(',')])
+#get number of titrations from well range
+wells_temp = parser.get('sample layout', 'titrations').split(',')
+wells = []
+for x in wells_temp:
+	wells.append([n.strip() for n in x.split('-')])
+#change letter wells to index numbers
+for i in range(len(wells)):
+	for n in range(len(wells[i])):
+		if wells[i][n].isalpha()==True:
+			wells[i][n] = int(letters[wells[i][n]])
+		elif wells[i][n].isdigit()==True:
+			wells[i][n] = int(wells[i][n])-1 #convert to zero index
+titrations = [int(x[1])-int(x[0])+1 for x in wells]
 concentrations = [float(x.strip()) for x in parser.get('sample layout', 'concentrations').split(',')]
 dilution_factors = [float(x.strip()) for x in parser.get('sample layout', 'dilution factors').split(',')]
-titrations = [int(x.strip()) for x in parser.get('sample layout', 'titrations').split(',')]
-#make sample and exclude lists usable
-samples_temp = parser.get('sample layout', 'samples').split(': ')
-samples_split = []
-samples = []
-for x in samples_temp:
-	samples_split.append([n.strip() for n in x.split(',')])
-for x in samples_split:
+
+#make ligands concentration and exclude lists usable
+ligand_conc_temp = parser.get('sample layout', 'ligand concentrations').split(': ')
+ligand_conc_split = []
+ligand_conc = []
+for x in ligand_conc_temp:
+	ligand_conc_split.append([n.strip() for n in x.split(',')])
+for x in ligand_conc_split:
 	if x == ['none'] or x == ['']:
-		samples.append(x)
+		ligand_conc.append([float(0)])
 	else:
-		samples.append([int(n) for n in x])
+		ligand_conc.append([float(n) for n in x])
 exclude_temp = parser.get('sample layout', 'excluded').split(': ')
 exclude_split = []
 exclude = []
@@ -44,19 +68,26 @@ for x in exclude_split:
 	if x == ['none'] or x == ['']:
 		exclude.append([None])
 	else:
-		exclude.append([int(n) for n in x])
+		exclude.append(x)
+#change letter wells to index number
+for i in range(len(exclude)):
+	if exclude[i] != [None]:
+		for n in range(len(exclude[i])):
+			if exclude[i][n].isalpha()==True:
+				exclude[i][n] = int(letters[exclude[i][n]]) - int(wells[i][0])
+			elif exclude[i][n].isdigit()==True:
+				exclude[i][n] = (int(exclude[i][n])-1) - int(wells[i][0])
+
 units = parser.get('sample layout', 'units')
 dupe = parser.getboolean('sample layout', 'duplicates')
-labels_temp = parser.get('sample layout', 'labels')
-labels = labels_temp.split(', ')
-labels = [x.strip() for x in parser.get('sample layout', 'labels').split(',')]
 #fit options
 fiteq = parser.get('fit options', 'fiteq')
-conc_L = parser.getfloat('fit options', 'ligand concentration')
 Kdi = parser.getfloat('fit options', 'Kdi')
 Si = parser.getfloat('fit options', 'Si')
 Oi = parser.getfloat('fit options', 'Oi')
 p0 = [Kdi, Si, Oi]
+L_pre_temp = parser.get('fit options', 'ligand pre-formatted').split(', ')
+L_pre = [float(x) for x in L_pre_temp]
 normalization = parser.getboolean('fit options', 'normalization')
 #plot options
 perplot = parser.getint('plot options', 'per plot')

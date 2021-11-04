@@ -18,6 +18,13 @@ def quad(P, Kd, S, O, L): #in this form, L refers to the ligand held at constant
 	a = P+L+Kd
 	return S*((a-(((a**2)-(4*P*L))**0.5))/(2*L))+O
 
+#def hill(P, Kd, n, S, O):
+#	return S*((P**n)/((P**n)+(Kd**n)))+O
+
+def hill(P, Kd, n, m, S, O):
+	#return S*((P**(n**m))/((P**(n**m))+(Kd**(n**m))))+O
+	return	S*((P**(n)/((P**(n)+(Kd**(n))))))+O
+
 def comp():#placeholder for competition fitting
 	return "WIP"
 
@@ -41,16 +48,16 @@ def getkdfit(x, y, fiteq, p0, units):
 	for i in range(len(y)):
 		x[i] = np.array(x[i])
 		y[i] = np.array(y[i])
-		popt, _ = opt.curve_fit(fiteq, x[i], y[i], p0=p0, bounds=((0,0,0),(np.inf,np.inf,np.inf)))
+		popt, _ = opt.curve_fit(kdfit, x[i], y[i], p0=p0, bounds=((0,0,0),(np.inf,np.inf,np.inf)))
 		fits_x.append(np.geomspace(x[i][len(x[i])-1], x[i][0], 50))   
-		fits_y.append(fiteq(fits_x[i], *popt))
+		fits_y.append(kdfit(fits_x[i], *popt))
 		#use estimated parameters to normalize anisotropy to be fraction bound
 		y_norm.append((y[i]-popt[2])/popt[1])
 		#calculate R-squared
-		residuals = y[i] - fiteq(x[i], *popt)
+		residuals = y[i] - kdfit(x[i], *popt)
 		r_sq = r_squared(y[i], residuals)
 		#calculate chi-squared
-		# y_expected = fiteq(x[i], *popt)
+		# y_expected = kdfit(x[i], *popt)
 		# chi_sq = chi_squared(y[i],y_expected)
 		#format parameters for table
 		param_table[0].append(str(round(popt[0],2)))
@@ -60,7 +67,7 @@ def getkdfit(x, y, fiteq, p0, units):
 		#param_table[4].append(str(round(chi_sq,4)))
 	return fits_x, fits_y, y_norm, param_table
 
-def getquadfit(x, y, conc_L, fiteq, p0, units):
+def getquadfit(x, y, ligand, fiteq, p0, units):
 	fits_x = []
 	fits_y = []
 	y_norm = []
@@ -70,17 +77,17 @@ def getquadfit(x, y, conc_L, fiteq, p0, units):
 		x[i] = np.array(x[i])
 		y[i] = np.array(y[i])
 		#use a lambda function to fix L in the quad equation
-		popt, _ = opt.curve_fit(lambda P, Kd, S, O: fiteq(P, Kd, S, O, conc_L), 
+		popt, _ = opt.curve_fit(lambda P, Kd, S, O: quad(P, Kd, S, O, ligand[i]), 
 			x[i], y[i], p0=p0, bounds=((0,0,0),(np.inf,np.inf,np.inf)))
 		fits_x.append(np.geomspace(x[i][len(x[i])-1], x[i][0], 50))   
-		fits_y.append(fiteq(fits_x[i], popt[0], popt[1], popt[2], conc_L))
+		fits_y.append(quad(fits_x[i], popt[0], popt[1], popt[2], ligand[i]))
 		#use estimated parameters to normalize anisotropy to be fraction bound
 		y_norm.append((y[i]-popt[2])/popt[1])
 		#calculate R-squared
-		residuals = (y[i] - fiteq(x[i], popt[0], popt[1], popt[2], conc_L))
+		residuals = (y[i] - quad(x[i], popt[0], popt[1], popt[2], ligand[i]))
 		r_sq = r_squared(y[i], residuals)
 		#calculate chi-squared
-		# y_expected = fiteq(x[i], popt[0], popt[1], popt[2], conc_L)
+		# y_expected = quad(x[i], popt[0], popt[1], popt[2], ligand[i])
 		# chi_sq = chi_squared(y[i],y_expected)
 		#format parameters for table
 		param_table[0].append(str(round(popt[0],2)))
@@ -88,6 +95,35 @@ def getquadfit(x, y, conc_L, fiteq, p0, units):
 		param_table[2].append(str(round(popt[2],4)))
 		param_table[3].append(str(round(r_sq,4)))
 		#param_table[4].append(str(round(chi_sq,4)))
+	return fits_x, fits_y, y_norm, param_table
+
+def gethillfit(x, y, fiteq, p0, units):
+	fits_x = []
+	fits_y = []
+	y_norm = []
+	p0_n = [p0[0], 1.0, 1.0, p0[1], p0[2]]
+	#param_table = [["Kd ("+units+")"],["n"],["S"],["O"],["R^2"]]
+	param_table = [["Kd ("+units+")"],["n"],["m"],["S"],["O"],["R^2"]]
+	for i in range(len(y)):
+		x[i] = np.array(x[i])
+		y[i] = np.array(y[i])
+		#popt, _ = opt.curve_fit(hill, x[i], y[i], p0=p0_n, bounds=((0,0,0,0),(np.inf,np.inf,np.inf,np.inf)))
+		popt, _ = opt.curve_fit(hill, x[i], y[i], p0=p0_n, bounds=((0,0,0,0,0),(np.inf,np.inf,np.inf,np.inf,np.inf)))
+		fits_x.append(np.geomspace(x[i][len(x[i])-1], x[i][0], 50))   
+		fits_y.append(hill(fits_x[i], *popt))
+		#use estimated parameters to normalize anisotropy to be fraction bound
+		y_norm.append((y[i]-popt[3])/popt[2])
+		#calculate R-squared
+		residuals = y[i] - hill(x[i], *popt)
+		r_sq = r_squared(y[i], residuals)
+		#format parameters for table
+		param_table[0].append(str(round(popt[0],2)))
+		param_table[1].append(str(round(popt[1],2)))
+		param_table[2].append(str(round(popt[2],4)))
+		param_table[3].append(str(round(popt[3],4)))
+		param_table[4].append(str(round(popt[4],4)))
+		#param_table[4].append(str(round(r_sq,4)))
+		param_table[5].append(str(round(r_sq,4)))
 	return fits_x, fits_y, y_norm, param_table
 
 #general function for scatter plot with a log x scale with a table underneath
@@ -137,7 +173,6 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 	x_upper = max([series[0] for series in x])
 	x_lower = min([series[-1] for series in x])
 	ax1.set_xlim(x_lower/2, x_upper*2)
-
 	#this part assumes that y is a list of lists. each inner list is one sample to plot
 	legendicons = []
 	for i in range(len(y)):
@@ -169,7 +204,7 @@ def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalizat
 	#masterindex counts up per sample plotted. plotcounter counts the plots so I can number the files.
 	masterindex = 0
 	plotcounter = 1
-	p0_norm = [20.0, 1.0, 0.0]
+	p0_norm = [p0[0], 1.0, 0.0]
 	for n in range(plotcount):#for each full plot to be made (no leftover plot)
 		conc_temp = []
 		anisos_temp = []
@@ -180,13 +215,19 @@ def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalizat
 			labels_temp.append(labels[masterindex])
 			masterindex+=1
 		#fit and plot using the condensed sample list
-		fits_x, fits_y, y_norm, param = getkdfit(conc_temp, anisos_temp, fiteq, p0, units)
+		if fiteq == "kdfit":
+			fits_x, fits_y, y_norm, param = getkdfit(conc_temp, anisos_temp, fiteq, p0, units)
+		elif fiteq == "hill":
+			fits_x, fits_y, y_norm, param = gethillfit(conc_temp, anisos_temp, fiteq, p0, units)
 		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
 			param, title, color, marker_size, marker, line_width, line_style, plot_title_size, 
 			x_title_size, y_title_size, x_tick_label_size, y_tick_label_size, x_tick_size, 
 			y_tick_size, legend, png, svg, plotname+str(plotcounter), filepath, showplot)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getkdfit(conc_temp, y_norm, fiteq, p0_norm, units)
+			if fiteq == "kdfit":
+				normfits_x, normfits_y, _, normparam = getkdfit(conc_temp, y_norm, fiteq, p0_norm, units)
+			elif fiteq == "hill":
+				normfits_x, normfits_y, _, normparam = gethillfit(conc_temp, y_norm, fiteq, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
 				line_style,plot_title_size, x_title_size, y_title_size, x_tick_label_size,
@@ -203,14 +244,20 @@ def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalizat
 			anisos_temp.append(anisos[masterindex])
 			labels_temp.append(labels[masterindex])
 			masterindex+=1
-		fits_x, fits_y, y_norm, param = getkdfit(conc_temp, anisos_temp, fiteq, p0, units)
+		if fiteq == "kdfit":
+			fits_x, fits_y, y_norm, param = getkdfit(conc_temp, anisos_temp, fiteq, p0, units)
+		elif fiteq == "hill":
+			fits_x, fits_y, y_norm, param = gethillfit(conc_temp, anisos_temp, fiteq, p0, units)
 		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
 			param, title, color, marker_size, marker, line_width, line_style, 
 			plot_title_size, x_title_size, y_title_size, x_tick_label_size,
 			y_tick_label_size, x_tick_size, y_tick_size,legend, png, svg, 
 			plotname+str(plotcounter), filepath, showplot)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getkdfit(conc_temp, y_norm, fiteq, p0_norm, units)
+			if fiteq == "kdfit":
+				normfits_x, normfits_y, _, normparam = getkdfit(conc_temp, y_norm, fiteq, p0_norm, units)
+			elif fiteq == "hill":
+				normfits_x, normfits_y, _, normparam = gethillfit(conc_temp, y_norm, fiteq, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
 				line_style, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
@@ -218,7 +265,7 @@ def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalizat
 				plotname+str(plotcounter)+'_normalized', filepath, showplot)
 
 
-def quad_allplot(conc, anisos, perplot, labels, units, y_title, conc_L, fiteq, p0, normalization, 
+def quad_allplot(conc, anisos, perplot, labels, units, y_title, ligands, fiteq, p0, normalization, 
 	title, color, marker_size, marker, line_width, line_style, plot_title_size, x_title_size, 
 	y_title_size, x_tick_label_size, y_tick_label_size, x_tick_size, y_tick_size, 
 	legend, png, svg, plotname, filepath, showplot):
@@ -231,24 +278,26 @@ def quad_allplot(conc, anisos, perplot, labels, units, y_title, conc_L, fiteq, p
 	#masterindex counts up per sample plotted. plotcounter counts the plots so I can number the files.
 	masterindex = 0
 	plotcounter = 1
-	p0_norm = [20.0, 1.0, 0.0]
+	p0_norm = [p0[0], 1.0, 0.0]
 	for n in range(plotcount):#for each full plot to be made (no leftover plot)
 		conc_temp = []
 		anisos_temp = []
+		ligands_temp = []
 		labels_temp = []
 		for i in range(perplot):#for each sample per plot, append lists with anisotropy and label of the sample based on masterindex
 			conc_temp.append(conc[masterindex])
 			anisos_temp.append(anisos[masterindex])
+			ligands_temp.append(ligands[masterindex])
 			labels_temp.append(labels[masterindex])
 			masterindex+=1
 		#fit and plot using the condensed sample list
-		fits_x, fits_y, y_norm, param = getquadfit(conc_temp, anisos_temp, conc_L, fiteq, p0, units)
+		fits_x, fits_y, y_norm, param = getquadfit(conc_temp, anisos_temp, ligands_temp, fiteq, p0, units)
 		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
 			param, title, color, marker_size, marker, line_width, line_style, plot_title_size, 
 			x_title_size, y_title_size, x_tick_label_size, y_tick_label_size, x_tick_size, y_tick_size, 
 			legend, png, svg, plotname+str(plotcounter), filepath, showplot)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getquadfit(conc_temp, y_norm, conc_L, fiteq, p0_norm, units)
+			normfits_x, normfits_y, _, normparam = getquadfit(conc_temp, y_norm, ligands_temp, fiteq, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
 				line_style, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
@@ -259,20 +308,22 @@ def quad_allplot(conc, anisos, perplot, labels, units, y_title, conc_L, fiteq, p
 	if leftovers>0:
 		conc_temp = []
 		anisos_temp = []
+		ligands_temp = []
 		labels_temp = []
 		for n in range(leftovers):
 			conc_temp.append(conc[masterindex])
 			anisos_temp.append(anisos[masterindex])
+			ligands_temp.append(ligands[masterindex])
 			labels_temp.append(labels[masterindex])
 			masterindex+=1
-		fits_x, fits_y, y_norm, param = getquadfit(conc_temp, anisos_temp, conc_L, fiteq, p0, units)
+		fits_x, fits_y, y_norm, param = getquadfit(conc_temp, anisos_temp, ligands_temp, fiteq, p0, units)
 		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
 			param, title, color, marker_size, marker, line_width, line_style, 
 			plot_title_size, x_title_size, y_title_size, x_tick_label_size,
 			y_tick_label_size, x_tick_size, y_tick_size, legend, png, svg, 
 			plotname+str(plotcounter), filepath, showplot)
 		if normalization == 1:
-			normfits_x, normfits_y, _, normparam = getquadfit(conc_temp, y_norm, conc_L, fiteq, p0_norm, units)
+			normfits_x, normfits_y, _, normparam = getquadfit(conc_temp, y_norm, ligands_temp, fiteq, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
 				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
 				line_style, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
