@@ -61,7 +61,7 @@ def excel_open_polar(file_raw, rc, wells):#get specified polarization data
 	for i in range(len(rc)):#extract polarization data and put into lists
 		for x in rc[i]:
 			if x.isalpha()==True:#for titrations done in rows 
-				for n in range(int(wells[i][0]), int(wells[i][1])+1):#get value from chosen wells in row
+				for n in range(int(wells[i][0])+1, int(wells[i][1])+2):#get value from chosen wells in row
 					holder_polar.append(dfpolar.at[x,n])
 				holder.append(holder_polar)
 				holder_polar=[]
