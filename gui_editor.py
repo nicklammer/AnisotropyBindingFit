@@ -634,6 +634,11 @@ class Editor:
 			else:
 				holder["exclude"].append(self.exclude_boxes[i].get())
 		self.config_set('sample layout', 'unique dilutions', self.unique_dilutions.get())
+		#possible to save config with empty strings for sample info, cut that out
+		label_check=holder["label"]
+		if label_check[-1] == '':
+			for field in holder:
+				holder[field].pop()
 		self.config_set('sample layout', 'labels', ': '.join(holder["label"]))
 		self.config_set('sample layout', 'titration row or col', ': '.join(holder["rc"]))
 		self.config_set('sample layout', 'titrations', ', '.join(holder["titration"]))
@@ -673,6 +678,9 @@ class Editor:
 			holder["color"].append(self.color_boxes[i].get())
 			holder["marker"].append(self.marker_boxes[i].get())
 			holder["line"].append(self.line_boxes[i].get())
+		if label_check[-1] == '':
+			for field in holder:
+				holder[field].pop()
 		self.config_set('plot options', 'colors', ', '.join(holder["color"]))
 		self.config_set('plot options', 'marker style', ', '.join(holder["marker"]))
 		self.config_set('plot options', 'line style', ', '.join(holder["line"]))
