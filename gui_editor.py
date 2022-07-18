@@ -394,6 +394,7 @@ class Editor:
 		tab = event.widget.tab('current')['text']
 		if tab == 'Style options':
 			self.update_style()
+			self.fill_style()
 		else:
 			pass
 	def update_style(self):
@@ -548,7 +549,8 @@ class Editor:
 			self.value_insert(self.marker_boxes[n], holder["marker"][n])
 			self.value_insert(self.line_boxes[n], holder["line"][n])
 	def fill_style(self):
-		#this is specifically to refresh the style options tab when you choose the data type
+		#this makes sure the the style tab properly updates without erroring
+		#there's probably a smarter way to condense these functions but I'll do that later
 		boxes=["label","color","marker","line"]
 		holder=dict(zip(boxes,[[] for _ in boxes]))#easier way to set up a bunch of empty lists
 		#get list of all sample labels
@@ -556,16 +558,21 @@ class Editor:
 			sheetpath=self.data_box.get()
 			_,_,labels=read.data_read(sheetpath)
 		else:
-			labels_data = [x.strip(':') for x in self.parser.get('sample layout', 'labels').split(': ')]
+			#labels_data = [x.strip(':') for x in self.parser.get('sample layout', 'labels').split(': ')]
+			labels_data = [x.get() for x in self.label_boxes]
 			labels_temp = []
 			for x in labels_data:
 				labels_temp.append([n.strip() for n in x.split(',')])
 			#I found this one liner to flatten a list of lists on stackoverflow
 			labels=[x for xs in labels_temp for x in xs]
 		holder["label"]=labels
-		holder["color"] = [x.strip() for x in self.parser.get('plot options', 'colors').split(',')]
-		holder["marker"] = [x.strip() for x in self.parser.get('plot options', 'marker style').split(',')]
-		holder["line"] = [x.strip() for x in self.parser.get('plot options', 'line style').split(',')]
+		#holder["color"] = [x.strip() for x in self.parser.get('plot options', 'colors').split(',')]
+		#holder["marker"] = [x.strip() for x in self.parser.get('plot options', 'marker style').split(',')]
+		#holder["line"] = [x.strip() for x in self.parser.get('plot options', 'line style').split(',')]
+		for i in range(len(self.color_boxes)):
+			holder["color"].append(self.color_boxes[i].get())
+			holder["marker"].append(self.marker_boxes[i].get())
+			holder["line"].append(self.line_boxes[i].get())
 		self.update_style()
 		for n in range(len(holder["label"])):
 			self.value_insert(self.style_label[n], holder["label"][n])
