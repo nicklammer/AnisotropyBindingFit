@@ -1,8 +1,9 @@
-import configparse
-import read
-import plot
-
 def run():
+	import configparse
+	import read
+	import plot
+	import importlib
+	importlib.reload(configparse)
 	raw_data = configparse.raw_data
 	file_sheet = configparse.file_sheet
 	a_or_p = configparse.a_or_p
@@ -26,9 +27,9 @@ def run():
 	perplot = configparse.perplot
 	colors = configparse.colors
 	marker_size = configparse.marker_size
-	marker = configparse.marker
+	marker_style = configparse.markers
 	line_width = configparse.line_width
-	line_style = configparse.line_style
+	line_style = configparse.lines
 	plot_title_size = configparse.plot_title_size
 	x_title_size = configparse.x_title_size
 	y_title_size = configparse.y_title_size
@@ -41,7 +42,6 @@ def run():
 	svg = configparse.svg
 	plottitle = configparse.plottitle
 	showplot = configparse.showplot
-
 	if raw_data == True:
 		if a_or_p == 'anisotropy':
 			y_title = "Anisotropy"
@@ -74,20 +74,20 @@ def run():
 	if fiteq == "kdfit" or fiteq == "hill":
 		p0=p0[0:3]
 		plot.allplot(conc_all,yvalues,perplot,labels_clean,units,y_title,fiteq,p0,normalization,
-			plottitle,colors,marker_size,marker,line_width,line_style,plot_title_size,
+			plottitle,colors,marker_size,marker_style,line_width,line_style,plot_title_size,
 			x_title_size,y_title_size,x_tick_label_size,y_tick_label_size,x_tick_size,
 			y_tick_size,legend,png,svg,plotname,path_output,showplot)
 	#quadratic fitting
 	elif fiteq == "quad":
 		p0=p0[0:3]
 		plot.quad_allplot(conc_all,yvalues,perplot,labels_clean,units,y_title,ligand_clean,fiteq,p0,
-			normalization,plottitle,colors,marker_size,marker,line_width,line_style,
+			normalization,plottitle,colors,marker_size,marker_style,line_width,line_style,
 			plot_title_size,x_title_size,y_title_size,x_tick_label_size,y_tick_label_size,
 			x_tick_size,y_tick_size,legend,png,svg,plotname,path_output,showplot)
 	#multi-site fitting
 	elif fiteq == "multi":
 		plot.allplot(conc_all,yvalues,perplot,labels_clean,units,y_title,fiteq,p0,normalization,
-			plottitle,colors,marker_size,marker,line_width,line_style,plot_title_size,
+			plottitle,colors,marker_size,marker_style,line_width,line_style,plot_title_size,
 			x_title_size,y_title_size,x_tick_label_size,y_tick_label_size,x_tick_size,
 			y_tick_size,legend,png,svg,plotname,path_output,showplot)
 	print ("data is cool")

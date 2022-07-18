@@ -94,9 +94,9 @@ normalization = parser.getboolean('fit options', 'normalization')
 #plot options
 perplot = parser.getint('plot options', 'per plot')
 colors_key=[x.strip() for x in parser.get('plot options', 'colors').split(',')]
-marker_chosen = parser.get('plot options', 'marker style')
+markers_key=[x.strip() for x in parser.get('plot options', 'marker style').split(',')]
 marker_size = parser.getfloat('plot options', 'marker size')
-line_chosen = parser.get('plot options', 'line style')
+lines_key=[x.strip() for x in parser.get('plot options', 'line style').split(',')]
 line_width = parser.getfloat('plot options', 'line width')
 plot_title_size = parser.getfloat('plot options', 'plot title size')
 x_title_size = parser.getfloat('plot options', 'x title size')
@@ -124,17 +124,23 @@ for key in colors_key:
 	colors.append(colors_dict[key])
 
 #marker style dictionary
-marker_key_temp = parsestyle.get('marker', 'marker_key')
-marker_value_temp = parsestyle.get('marker', 'marker_value')
-marker_key = marker_key_temp.split(', ')
-marker_value = marker_value_temp.split(', ')
-marker_dict = dict(zip(marker_key, marker_value))
-marker = marker_dict[marker_chosen]
+marker_key_temp_fordict = parsestyle.get('marker', 'marker_key')
+marker_value_temp_fordict = parsestyle.get('marker', 'marker_value')
+marker_key_fordict = marker_key_temp_fordict.split(', ')
+marker_value_fordict = marker_value_temp_fordict.split(', ')
+marker_dict = dict(zip(marker_key_fordict, marker_value_fordict))
+
+markers = []
+for key in markers_key:
+	markers.append(marker_dict[key])
 
 #line style dictionary
-line_key_temp = parsestyle.get('line', 'line_key')
-line_value_temp = parsestyle.get('line', 'line_value')
-line_key = line_key_temp.split(', ')
-line_value = line_value_temp.split(', ')
-line_dict = dict(zip(line_key, line_value))
-line_style = line_dict[line_chosen]
+line_key_temp_fordict = parsestyle.get('line', 'line_key')
+line_value_temp_fordict = parsestyle.get('line', 'line_value')
+line_key_fordict = line_key_temp_fordict.split(', ')
+line_value_fordict = line_value_temp_fordict.split(', ')
+line_dict = dict(zip(line_key_fordict, line_value_fordict))
+
+lines = []
+for key in lines_key:
+	lines.append(line_dict[key])

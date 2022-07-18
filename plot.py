@@ -153,7 +153,7 @@ def getmultifit(x, y, p0, units):
 
 #general function for scatter plot with a log x scale with a table underneath
 def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param, 
-	title, color, marker_size, marker, line_width, line_style, 
+	title, color, marker_size, marker_style, line_width, line_style, 
 	plot_title_size, x_title_size, y_title_size, x_tick_label_size,
 	y_tick_label_size, x_tick_size, y_tick_size, legend, png, svg, 
 	plotname, filepath, showplot):
@@ -202,12 +202,12 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 	#this part assumes that y is a list of lists. each inner list is one sample to plot
 	legendicons = []
 	for i in range(len(y)):
-		ax1.scatter(x[i], y[i], s=20*marker_size, color=color[i], marker=marker, label=labels[i])
-		ax1.plot(fits_x[i], fits_y[i], color=color[i], linewidth=line_width, linestyle=line_style)
+		ax1.scatter(x[i], y[i], s=20*marker_size, color=color[i], marker=marker_style[i], label=labels[i])
+		ax1.plot(fits_x[i], fits_y[i], color=color[i], linewidth=line_width, linestyle=line_style[i])
 		#this is to get legends with marker and line
 		if legend == True:
-			legendicons.append(mlines.Line2D([],[],color=color[i], marker=marker,
-				linestyle=line_style, label=labels[i]))
+			legendicons.append(mlines.Line2D([],[],color=color[i], marker=marker_style[i],
+				linestyle=line_style[i], label=labels[i]))
 	if legend == True:
 		ax1.legend(legendicons, labels, fontsize=13, loc='upper left')
 	#save as png for quick viewing, svg for further editing
@@ -217,10 +217,10 @@ def logplot(x, y, labels, units, y_ax, fits_x, fits_y, param,
 		plt.savefig(filepath+plotname+'.svg')
 	#show plot(s) in pop-up window
 	if showplot == True:
-		plt.show()
+		plt.show(block=False)
 
 def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalization, title,
-	color, marker_size, marker, line_width, line_style, plot_title_size, x_title_size, 
+	color, marker_size, marker_style, line_width, line_style, plot_title_size, x_title_size, 
 	y_title_size, x_tick_label_size, y_tick_label_size, x_tick_size, y_tick_size, 
 	legend, png, svg, plotname, filepath, showplot):
 	#this is to figure out how many plots to make based on the perplot in the config
@@ -235,10 +235,16 @@ def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalizat
 		conc_temp = []
 		anisos_temp = []
 		labels_temp = []
+		color_temp = []
+		marker_temp = []
+		line_temp = []
 		for i in range(perplot):#for each sample per plot, append lists with anisotropy and label of the sample based on masterindex
 			conc_temp.append(conc[masterindex])
 			anisos_temp.append(anisos[masterindex])
 			labels_temp.append(labels[masterindex])
+			color_temp.append(color[masterindex])
+			marker_temp.append(marker_style[masterindex])
+			line_temp.append(line_style[masterindex])
 			masterindex+=1
 		#fit and plot using the condensed sample list
 		if fiteq == "kdfit":
@@ -248,7 +254,7 @@ def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalizat
 		elif fiteq == "multi":
 			fits_x, fits_y, y_norm, param = getmultifit(conc_temp, anisos_temp, p0, units)
 		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
-			param, title, color, marker_size, marker, line_width, line_style, plot_title_size, 
+			param, title, color_temp, marker_size, marker_temp, line_width, line_temp, plot_title_size, 
 			x_title_size, y_title_size, x_tick_label_size, y_tick_label_size, x_tick_size, 
 			y_tick_size, legend, png, svg, plotname+str(plotcounter), filepath, showplot)
 		if normalization == 1:
@@ -257,8 +263,8 @@ def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalizat
 			elif fiteq == "hill":
 				normfits_x, normfits_y, _, normparam = gethillfit(conc_temp, y_norm, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
-				line_style,plot_title_size, x_title_size, y_title_size, x_tick_label_size,
+				normparam, title+' (Normalized)', color_temp, marker_size, marker_temp, line_width,
+				line_temp,plot_title_size, x_title_size, y_title_size, x_tick_label_size,
 				y_tick_label_size, x_tick_size, y_tick_size, legend, png, svg, 
 				plotname+str(plotcounter)+'_normalized', filepath, showplot)
 		plotcounter+=1
@@ -267,10 +273,16 @@ def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalizat
 		conc_temp = []
 		anisos_temp = []
 		labels_temp = []
+		color_temp = []
+		marker_temp = []
+		line_temp = []
 		for n in range(leftovers):
 			conc_temp.append(conc[masterindex])
 			anisos_temp.append(anisos[masterindex])
 			labels_temp.append(labels[masterindex])
+			color_temp.append(color[masterindex])
+			marker_temp.append(marker_style[masterindex])
+			line_temp.append(line_style[masterindex])
 			masterindex+=1
 		if fiteq == "kdfit":
 			fits_x, fits_y, y_norm, param = getkdfit(conc_temp, anisos_temp, p0, units)
@@ -279,7 +291,7 @@ def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalizat
 		elif fiteq == "multi":
 			fits_x, fits_y, y_norm, param = getmultifit(conc_temp, anisos_temp, p0, units)
 		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
-			param, title, color, marker_size, marker, line_width, line_style, 
+			param, title, color_temp, marker_size, marker_temp, line_width, line_temp, 
 			plot_title_size, x_title_size, y_title_size, x_tick_label_size,
 			y_tick_label_size, x_tick_size, y_tick_size,legend, png, svg, 
 			plotname+str(plotcounter), filepath, showplot)
@@ -289,14 +301,14 @@ def allplot(conc, anisos, perplot, labels, units, y_title, fiteq, p0, normalizat
 			elif fiteq == "hill":
 				normfits_x, normfits_y, _, normparam = gethillfit(conc_temp, y_norm, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
-				line_style, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
+				normparam, title+' (Normalized)', color_temp, marker_size, marker_temp, line_width,
+				line_temp, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
 				y_tick_label_size, x_tick_size, y_tick_size, legend, png, svg, 
 				plotname+str(plotcounter)+'_normalized', filepath, showplot)
 
 
 def quad_allplot(conc, anisos, perplot, labels, units, y_title, ligands, fiteq, p0, normalization, 
-	title, color, marker_size, marker, line_width, line_style, plot_title_size, x_title_size, 
+	title, color, marker_size, marker_style, line_width, line_style, plot_title_size, x_title_size, 
 	y_title_size, x_tick_label_size, y_tick_label_size, x_tick_size, y_tick_size, 
 	legend, png, svg, plotname, filepath, showplot):
 	#need to fix sqrt with normalization
@@ -314,23 +326,29 @@ def quad_allplot(conc, anisos, perplot, labels, units, y_title, ligands, fiteq, 
 		anisos_temp = []
 		ligands_temp = []
 		labels_temp = []
+		color_temp=[]
+		marker_temp = []
+		line_temp = []
 		for i in range(perplot):#for each sample per plot, append lists with anisotropy and label of the sample based on masterindex
 			conc_temp.append(conc[masterindex])
 			anisos_temp.append(anisos[masterindex])
 			ligands_temp.append(ligands[masterindex])
 			labels_temp.append(labels[masterindex])
+			color_temp.append(color[masterindex])
+			marker_temp.append(marker_style[masterindex])
+			line_temp.append(line_style[masterindex])
 			masterindex+=1
 		#fit and plot using the condensed sample list
 		fits_x, fits_y, y_norm, param = getquadfit(conc_temp, anisos_temp, ligands_temp, p0, units)
 		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
-			param, title, color, marker_size, marker, line_width, line_style, plot_title_size, 
+			param, title, color_temp, marker_size, marker_temp, line_width, line_temp, plot_title_size, 
 			x_title_size, y_title_size, x_tick_label_size, y_tick_label_size, x_tick_size, y_tick_size, 
 			legend, png, svg, plotname+str(plotcounter), filepath, showplot)
 		if normalization == 1:
 			normfits_x, normfits_y, _, normparam = getquadfit(conc_temp, y_norm, ligands_temp, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
-				line_style, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
+				normparam, title+' (Normalized)', color_temp, marker_size, marker_temp, line_width,
+				line_temp, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
 				y_tick_label_size, x_tick_size, y_tick_size,legend, png, svg, 
 				plotname+str(plotcounter)+'_normalized', filepath, showplot)
 		plotcounter+=1
@@ -340,22 +358,28 @@ def quad_allplot(conc, anisos, perplot, labels, units, y_title, ligands, fiteq, 
 		anisos_temp = []
 		ligands_temp = []
 		labels_temp = []
+		color_temp=[]
+		marker_temp = []
+		line_temp = []
 		for n in range(leftovers):
 			conc_temp.append(conc[masterindex])
 			anisos_temp.append(anisos[masterindex])
 			ligands_temp.append(ligands[masterindex])
 			labels_temp.append(labels[masterindex])
+			color_temp.append(color[masterindex])
+			marker_temp.append(marker_style[masterindex])
+			line_temp.append(line_style[masterindex])
 			masterindex+=1
 		fits_x, fits_y, y_norm, param = getquadfit(conc_temp, anisos_temp, ligands_temp, p0, units)
 		logplot(conc_temp, anisos_temp, labels_temp, units, y_title, fits_x, fits_y,
-			param, title, color, marker_size, marker, line_width, line_style, 
+			param, title, color_temp, marker_size, marker_temp, line_width, line_temp, 
 			plot_title_size, x_title_size, y_title_size, x_tick_label_size,
 			y_tick_label_size, x_tick_size, y_tick_size, legend, png, svg, 
 			plotname+str(plotcounter), filepath, showplot)
 		if normalization == 1:
 			normfits_x, normfits_y, _, normparam = getquadfit(conc_temp, y_norm, ligands_temp, p0_norm, units)
 			logplot(conc_temp, y_norm, labels_temp, units, 'Fraction Bound', normfits_x, normfits_y,
-				normparam, title+' (Normalized)', color, marker_size, marker, line_width,
-				line_style, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
+				normparam, title+' (Normalized)', color_temp, marker_size, marker_temp, line_width,
+				line_temp, plot_title_size, x_title_size, y_title_size, x_tick_label_size,
 				y_tick_label_size, x_tick_size, y_tick_size, legend, png, svg, 
 				plotname+str(plotcounter)+'_normalized', filepath, showplot)
