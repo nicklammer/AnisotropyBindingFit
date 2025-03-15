@@ -6,7 +6,6 @@ from matplotlib.font_manager import FontProperties
 matplotlib.rcParams['font.sans-serif'] = "Arial"
 matplotlib.rcParams['font.family'] = "sans-serif"
 plt.rcParams['svg.fonttype'] = 'none'
-#from scipy.stats import chisquare
 import scipy.optimize as opt
 import numpy as np
 
@@ -18,7 +17,7 @@ def quad(P, Kd, S, O, L): #in this form, L refers to the ligand held at constant
 	a = P+L+Kd
 	return S*((a-(((a**2)-(4*P*L))**0.5))/(2*L))+O
 
-def hill(P, Kd, n, m, S, O):
+def hill(P, Kd, n, S, O):
 	return	S*((P**(n)/((P**(n)+(Kd**(n))))))+O
 
 def multi(P, Kd, S, O, Kd2, S2):
@@ -33,16 +32,11 @@ def r_squared(y, residuals):
 	r_sq = 1-(ss_res/ss_tot)
 	return r_sq
 
-# def chi_squared(obs, exp):#calculate chi_squared (this probably doesn't need to be it's own thing)
-# 	chi_sq = chisquare(obs, f_exp=exp) #returns (chi_sq, p-value)
-# 	return chi_sq[0]
-	
 #decided to make separate functions for each fitting equation also to make my life easier
 def getkdfit(x, y, p0, units):
 	fits_x = []
 	fits_y = []
 	y_norm = []
-	#param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"],["Chi^2"]]
 	param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"]]
 	for i in range(len(y)):
 		x[i] = np.array(x[i])
@@ -55,22 +49,17 @@ def getkdfit(x, y, p0, units):
 		#calculate R-squared
 		residuals = y[i] - kdfit(x[i], *popt)
 		r_sq = r_squared(y[i], residuals)
-		#calculate chi-squared
-		# y_expected = kdfit(x[i], *popt)
-		# chi_sq = chi_squared(y[i],y_expected)
 		#format parameters for table
 		param_table[0].append(str(round(popt[0],2)))
 		param_table[1].append(str(round(popt[1],4)))
 		param_table[2].append(str(round(popt[2],4)))
 		param_table[3].append(str(round(r_sq,4)))
-		#param_table[4].append(str(round(chi_sq,4)))
 	return fits_x, fits_y, y_norm, param_table
 
 def getquadfit(x, y, ligand, p0, units):
 	fits_x = []
 	fits_y = []
 	y_norm = []
-	#param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"],["Chi^2"]]
 	param_table = [["Kd ("+units+")"],["S"],["O"],["R^2"]]
 	for i in range(len(y)):
 		x[i] = np.array(x[i])
@@ -85,15 +74,11 @@ def getquadfit(x, y, ligand, p0, units):
 		#calculate R-squared
 		residuals = (y[i] - quad(x[i], popt[0], popt[1], popt[2], ligand[i]))
 		r_sq = r_squared(y[i], residuals)
-		#calculate chi-squared
-		# y_expected = quad(x[i], popt[0], popt[1], popt[2], ligand[i])
-		# chi_sq = chi_squared(y[i],y_expected)
 		#format parameters for table
 		param_table[0].append(str(round(popt[0],2)))
 		param_table[1].append(str(round(popt[1],4)))
 		param_table[2].append(str(round(popt[2],4)))
 		param_table[3].append(str(round(r_sq,4)))
-		#param_table[4].append(str(round(chi_sq,4)))
 	return fits_x, fits_y, y_norm, param_table
 
 def gethillfit(x, y, p0, units):
@@ -101,13 +86,11 @@ def gethillfit(x, y, p0, units):
 	fits_y = []
 	y_norm = []
 	p0_n = [p0[0], 1.0, 1.0, p0[1], p0[2]]
-	#param_table = [["Kd ("+units+")"],["n"],["S"],["O"],["R^2"]]
-	param_table = [["Kd ("+units+")"],["n"],["m"],["S"],["O"],["R^2"]]
+	param_table = [["Kd ("+units+")"],["n"],["S"],["O"],["R^2"]]
 	for i in range(len(y)):
 		x[i] = np.array(x[i])
 		y[i] = np.array(y[i])
-		#popt, _ = opt.curve_fit(hill, x[i], y[i], p0=p0_n, bounds=((0,0,0,0),(np.inf,np.inf,np.inf,np.inf)))
-		popt, _ = opt.curve_fit(hill, x[i], y[i], p0=p0_n, bounds=((0,0,0,0,0),(np.inf,np.inf,np.inf,np.inf,np.inf)))
+		popt, _ = opt.curve_fit(hill, x[i], y[i], p0=p0_n, bounds=((0,0,0,0),(np.inf,np.inf,np.inf,np.inf)))
 		fits_x.append(np.geomspace(x[i][len(x[i])-1], x[i][0], 50))   
 		fits_y.append(hill(fits_x[i], *popt))
 		#use estimated parameters to normalize anisotropy to be fraction bound
@@ -120,9 +103,7 @@ def gethillfit(x, y, p0, units):
 		param_table[1].append(str(round(popt[1],2)))
 		param_table[2].append(str(round(popt[2],4)))
 		param_table[3].append(str(round(popt[3],4)))
-		param_table[4].append(str(round(popt[4],4)))
-		#param_table[4].append(str(round(r_sq,4)))
-		param_table[5].append(str(round(r_sq,4)))
+		param_table[4].append(str(round(r_sq,4)))
 	return fits_x, fits_y, y_norm, param_table
 
 def getmultifit(x, y, p0, units):
